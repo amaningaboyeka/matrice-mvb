@@ -28,7 +28,9 @@ PROVINCES <- c("Ituri", "Nord-Kivu")
 CATCH_MIN <- 180      # zone d'attraction d'un site : <= 3 h de route
 TAU_MIN   <- 120      # décroissance de la pression d'importation
 K_RW      <- 0.25     # calibration des projections (validation rétrospective)
-VERSION   <- "2.0"
+SEUIL_CAS_ELEVE   <- 20   # probabilité élevée : >= 20 cas confirmés en 21 jours...
+SEUIL_INCID_ELEVE <- 10   # ... ou >= 10 cas pour 100 000 habitants en 21 jours
+VERSION   <- "2.1"
 
 # ------------------------------------------------------------------ Données
 alias <- read_csv(f("aliases.csv"), show_col_types = FALSE)
@@ -81,68 +83,87 @@ if (isTRUE(statut_acled$utilise) && file.exists(f("acled_evenements.csv"))) {
 }
 
 # ------------------------------------------------------------ Indicateurs
-ind <- hz |> st_drop_geometry() |>
-  left_join(val_a(cas_j, FIN) |> transmute(nom, cas_cumules = round(cum)), by = "nom") |>
-  left_join(val_a(dec_j, FIN) |> transmute(nom, deces_cumules = round(cum)), by = "nom") |>
-  left_join(fen(cas_j, FIN - 21, FIN) |> rename(cas_21j = n), by = "nom") |>
-  left_join(fen(cas_j, FIN - 42, FIN - 21) |> rename(cas_21j_prec = n), by = "nom") |>
-  left_join(fen(cas_j, FIN - 42, FIN) |> rename(cas_42j = n), by = "nom") |>
-  left_join(fen(dec_j, FIN - 42, FIN) |> rename(deces_42j = n), by = "nom") |>
-  left_join(cas |> group_by(nom) |> arrange(date) |> filter(v > lag(v, default = 0)) |> summarise(dernier_cas = max(date)), by = "nom") |>
-  left_join(num("worldpop__pop_count__static.csv", "population"), by = "nom") |>
-  left_join(num("grid3_healthsites__healthsite_count__static.csv", "formations_sanitaires"), by = "nom") |>
-  left_join(num("ccvi__socioeconomic_deprivation__static.csv", "privation"), by = "nom") |>
-  left_join(terrain, by = "nom") |> left_join(oracle, by = "nom") |> left_join(acled, by = "nom") |>
-  mutate(across(c(cas_cumules, deces_cumules, cas_21j, cas_21j_prec, cas_42j, deces_42j), ~ coalesce(.x, 0)),
-         acces_terrain = coalesce(acces_terrain, "Non renseigné"),
-         incidence_21j_100k = 1e5 * cas_21j / population,
-         tendance = ifelse(cas_21j + cas_21j_prec > 0, (cas_21j + 1) / (cas_21j_prec + 1), NA),
-         letalite_42j = ifelse(cas_42j >= 10, deces_42j / cas_42j, NA),
-         jours_depuis_dernier_cas = as.numeric(FIN - dernier_cas),
-         fs_10k = 1e4 * formations_sanitaires / population,
-         densite = population / (as.numeric(st_area(st_transform(hz, 32735))[match(nom, hz$nom)]) / 1e6))
+calculer <- function(D) {
+  ind <- hz |> st_drop_geometry() |>
+    left_join(val_a(cas_j, D) |> transmute(nom, cas_cumules = round(cum)), by = "nom") |>
+    left_join(val_a(dec_j, D) |> transmute(nom, deces_cumules = round(cum)), by = "nom") |>
+    left_join(fen(cas_j, D - 21, D) |> rename(cas_21j = n), by = "nom") |>
+    left_join(fen(cas_j, D - 42, D - 21) |> rename(cas_21j_prec = n), by = "nom") |>
+    left_join(fen(cas_j, D - 42, D) |> rename(cas_42j = n), by = "nom") |>
+    left_join(fen(dec_j, D - 42, D) |> rename(deces_42j = n), by = "nom") |>
+    left_join(cas |> filter(date <= D) |> group_by(nom) |> arrange(date) |> filter(v > lag(v, default = 0)) |> summarise(dernier_cas = max(date)), by = "nom") |>
+    left_join(num("worldpop__pop_count__static.csv", "population"), by = "nom") |>
+    left_join(num("grid3_healthsites__healthsite_count__static.csv", "formations_sanitaires"), by = "nom") |>
+    left_join(num("ccvi__socioeconomic_deprivation__static.csv", "privation"), by = "nom") |>
+    left_join(terrain, by = "nom") |> left_join(oracle, by = "nom") |> left_join(acled, by = "nom") |>
+    mutate(across(c(cas_cumules, deces_cumules, cas_21j, cas_21j_prec, cas_42j, deces_42j), ~ coalesce(.x, 0)),
+           acces_terrain = coalesce(acces_terrain, "Non renseigné"),
+           incidence_21j_100k = 1e5 * cas_21j / population,
+           tendance = ifelse(cas_21j + cas_21j_prec > 0, (cas_21j + 1) / (cas_21j_prec + 1), NA),
+           letalite_42j = ifelse(cas_42j >= 10, deces_42j / cas_42j, NA),
+           jours_depuis_dernier_cas = as.numeric(D - dernier_cas),
+           fs_10k = 1e4 * formations_sanitaires / population,
+           densite = population / (as.numeric(st_area(st_transform(hz, 32735))[match(nom, hz$nom)]) / 1e6))
+  
+  a21 <- fen(cas_j, D - 21, D)
+  ind$pression_importation <- sapply(ind$nom, function(z) {
+    if (!z %in% rownames(TT)) return(NA)
+    s <- a21 |> filter(nom != z, nom %in% colnames(TT), n > 0)
+    sum(s$n * exp(-TT[z, s$nom] / TAU_MIN), na.rm = TRUE) })
+  for (s in names(SITES)) ind[[paste0("temps_", s, "_min")]] <- as.numeric(TT[ind$nom, SITES[[s]]])
+  
+  # ------------------------------------------------ Scores et matrice (v2)
+  pct <- function(x) { r <- percent_rank(x); r[is.na(r)] <- median(r, na.rm = TRUE); r }
+  note_terrain <- c("Accessible" = 0, "Partiellement accessible" = 0.5, "Inaccessible" = 1)
+  ind <- ind |> mutate(
+    s_cas = pct(log1p(cas_21j)), s_incid = pct(incidence_21j_100k),
+    s_tendance = ifelse(cas_21j == 0, 0, pct(tendance)), s_import = pct(log1p(pression_importation)),
+    s_densite = pct(log(densite)), s_fs = pct(-fs_10k), s_priv = pct(privation), s_letal = pct(letalite_42j),
+    s_acled = if (all(is.na(acled_evt_90j))) NA_real_ else pct(log1p(acled_evt_90j)),
+    s_terrain = unname(note_terrain[acces_terrain]),
+    s_secu = case_when(!is.na(s_terrain) & !is.na(s_acled) ~ (s_terrain + s_acled) / 2,
+                       !is.na(s_terrain) ~ s_terrain, !is.na(s_acled) ~ s_acled, TRUE ~ NA_real_),
+    niveau_securite = case_when(is.na(s_secu) ~ "Non renseigné", s_secu >= 2/3 ~ "Élevé",
+                                s_secu >= 1/3 ~ "Moyen", TRUE ~ "Faible"),
+    probabilite = 0.40 * s_cas + 0.25 * s_incid + 0.10 * s_tendance + 0.25 * s_import,
+    impact = {
+      w <- cbind(s_densite = .25, s_fs = .20, s_priv = .15, s_letal = .20, s_secu = .20)
+      m <- cbind(s_densite, s_fs, s_priv, s_letal, s_secu)
+      ww <- matrix(w, nrow(m), 5, byrow = TRUE); ww[is.na(m)] <- 0; m[is.na(m)] <- 0
+      rowSums(m * ww) / rowSums(ww) },
+    survivants_estimes = pmax(cas_cumules - deces_cumules, 0),
+    statut = case_when(cas_21j > 0 ~ "Active", cas_cumules > 0 ~ "Touchée, sans cas récent", TRUE ~ "Jamais touchée"))
+  
+  # Liste 1 : zones à surveiller (sans cas récent) — alerte = quintile supérieur de pression d'importation
+  ind <- ind |> group_by(actif = cas_21j > 0) |>
+    mutate(rang_pression = ifelse(!actif, rank(-pression_importation, ties.method = "first"), NA),
+           alerte_precoce = !actif & percent_rank(pression_importation) >= 0.8) |> ungroup() |> select(-actif)
+  # Liste 2 : zones actives à renforcer — classées par cas récents puis incidence
+  ind <- ind |> mutate(rang_actif = ifelse(cas_21j > 0, rank(-(cas_21j + incidence_21j_100k / 1000), ties.method = "first"), NA))
+  # Classes : seuils ABSOLUS pour la probabilité (stables dans le temps), relatifs pour l'impact
+  ind <- ind |> mutate(
+    classe_prob = factor(case_when(
+      cas_21j >= SEUIL_CAS_ELEVE | incidence_21j_100k >= SEUIL_INCID_ELEVE ~ "Élevée",
+      cas_21j >= 1 | alerte_precoce ~ "Moyenne",
+      TRUE ~ "Faible"), levels = c("Faible", "Moyenne", "Élevée")),
+    classe_impact = cut(impact, c(-Inf, 1/3, 2/3, Inf), labels = c("Faible", "Moyen", "Élevé")),
+    produit = as.integer(classe_prob) * as.integer(classe_impact),
+    niveau_risque = case_when(produit == 9 ~ "Très élevé", produit == 6 ~ "Élevé", produit >= 3 ~ "Modéré", TRUE ~ "Faible"))
+  ind <- ind |> arrange(desc(produit), desc(probabilite)) |> mutate(rang = row_number())
+  for (s in names(SITES)) ind[[paste0("attraction_", s)]] <- !is.na(ind[[paste0("temps_", s, "_min")]]) &
+    ind[[paste0("temps_", s, "_min")]] <= CATCH_MIN
+  ind
+}
+ind <- calculer(FIN)
 
-a21 <- fen(cas_j, FIN - 21, FIN)
-ind$pression_importation <- sapply(ind$nom, function(z) {
-  if (!z %in% rownames(TT)) return(NA)
-  s <- a21 |> filter(nom != z, nom %in% colnames(TT), n > 0)
-  sum(s$n * exp(-TT[z, s$nom] / TAU_MIN), na.rm = TRUE) })
-for (s in names(SITES)) ind[[paste0("temps_", s, "_min")]] <- as.numeric(TT[ind$nom, SITES[[s]]])
-
-# ------------------------------------------------ Scores et matrice (v2)
-pct <- function(x) { r <- percent_rank(x); r[is.na(r)] <- median(r, na.rm = TRUE); r }
-note_terrain <- c("Accessible" = 0, "Partiellement accessible" = 0.5, "Inaccessible" = 1)
-ind <- ind |> mutate(
-  s_cas = pct(log1p(cas_21j)), s_incid = pct(incidence_21j_100k),
-  s_tendance = ifelse(cas_21j == 0, 0, pct(tendance)), s_import = pct(log1p(pression_importation)),
-  s_densite = pct(log(densite)), s_fs = pct(-fs_10k), s_priv = pct(privation), s_letal = pct(letalite_42j),
-  s_acled = if (all(is.na(acled_evt_90j))) NA_real_ else pct(log1p(acled_evt_90j)),
-  s_terrain = unname(note_terrain[acces_terrain]),
-  s_secu = case_when(!is.na(s_terrain) & !is.na(s_acled) ~ (s_terrain + s_acled) / 2,
-                     !is.na(s_terrain) ~ s_terrain, !is.na(s_acled) ~ s_acled, TRUE ~ NA_real_),
-  niveau_securite = case_when(is.na(s_secu) ~ "Non renseigné", s_secu >= 2/3 ~ "Élevé",
-                              s_secu >= 1/3 ~ "Moyen", TRUE ~ "Faible"),
-  probabilite = 0.40 * s_cas + 0.25 * s_incid + 0.10 * s_tendance + 0.25 * s_import,
-  impact = {
-    w <- cbind(s_densite = .25, s_fs = .20, s_priv = .15, s_letal = .20, s_secu = .20)
-    m <- cbind(s_densite, s_fs, s_priv, s_letal, s_secu)
-    ww <- matrix(w, nrow(m), 5, byrow = TRUE); ww[is.na(m)] <- 0; m[is.na(m)] <- 0
-    rowSums(m * ww) / rowSums(ww) },
-  classe_prob = cut(probabilite, c(-Inf, 1/3, 2/3, Inf), labels = c("Faible", "Moyenne", "Élevée")),
-  classe_impact = cut(impact, c(-Inf, 1/3, 2/3, Inf), labels = c("Faible", "Moyen", "Élevé")),
-  produit = as.integer(classe_prob) * as.integer(classe_impact),
-  niveau_risque = case_when(produit == 9 ~ "Très élevé", produit == 6 ~ "Élevé", produit >= 3 ~ "Modéré", TRUE ~ "Faible"),
-  statut = case_when(cas_21j > 0 ~ "Active", cas_cumules > 0 ~ "Touchée, sans cas récent", TRUE ~ "Jamais touchée"))
-
-# Liste 1 : zones à surveiller (sans cas récent) — alerte = quintile supérieur de pression d'importation
-ind <- ind |> group_by(actif = cas_21j > 0) |>
-  mutate(rang_pression = ifelse(!actif, rank(-pression_importation, ties.method = "first"), NA),
-         alerte_precoce = !actif & percent_rank(pression_importation) >= 0.8) |> ungroup() |> select(-actif)
-# Liste 2 : zones actives à renforcer — classées par cas récents puis incidence
-ind <- ind |> mutate(rang_actif = ifelse(cas_21j > 0, rank(-(cas_21j + incidence_21j_100k / 1000), ties.method = "first"), NA))
-ind <- ind |> arrange(desc(produit), desc(probabilite)) |> mutate(rang = row_number())
-for (s in names(SITES)) ind[[paste0("attraction_", s)]] <- !is.na(ind[[paste0("temps_", s, "_min")]]) &
-  ind[[paste0("temps_", s, "_min")]] <= CATCH_MIN
+# ------------------------------------------ Évolution sur 7 jours
+ordre <- c("Faible" = 1, "Modéré" = 2, "Élevé" = 3, "Très élevé" = 4)
+prec <- calculer(FIN - 7) |> transmute(nom, niveau_j7 = niveau_risque, rang_j7 = rang, alerte_j7 = alerte_precoce, cas_21j_j7 = cas_21j)
+ind <- ind |> left_join(prec, by = "nom") |>
+  mutate(evolution_7j = case_when(ordre[niveau_risque] > ordre[niveau_j7] ~ "En hausse",
+                                  ordre[niveau_risque] < ordre[niveau_j7] ~ "En baisse", TRUE ~ "Stable"),
+         alerte_7j = case_when(alerte_precoce & !alerte_j7 ~ "Nouvelle alerte", !alerte_precoce & alerte_j7 & cas_21j > 0 ~ "Alerte confirmée (cas notifiés)",
+                               !alerte_precoce & alerte_j7 ~ "Alerte levée", TRUE ~ ""))
 
 # ---------------------------------------- Dynamique et projections calibrées
 serie_site <- function(zones) cas_j |> filter(nom %in% zones) |> group_by(date) |> summarise(cum = sum(cum))
@@ -180,7 +201,7 @@ write_csv(bind_rows(lapply(names(res_sites), function(s) res_sites[[s]]$r |> mut
             mutate(across(c(rt, bas, haut), ~ round(.x, 3))), "sortie/rt_par_site.csv")
 resume <- bind_rows(lapply(names(res_sites), function(s) { x <- res_sites[[s]]; z <- ind |> filter(nom %in% x$zones); rr <- tail(x$r, 1)
   tibble(site = s, date_donnees = format(FIN), zones_attraction = length(x$zones), zones_actives = sum(z$cas_21j > 0),
-         cas_21j = sum(z$cas_21j), cas_21j_prec = sum(z$cas_21j_prec),
+         cas_21j = sum(z$cas_21j), cas_21j_prec = sum(z$cas_21j_prec), survivants_estimes = sum(z$survivants_estimes),
          croissance_hebdo_pct = round(100 * x$p$croissance, 1), croissance_ic95_bas = round(100 * x$p$ic[1], 1),
          croissance_ic95_haut = round(100 * x$p$ic[2], 1), rt = round(rr$rt, 2), rt_bas = round(rr$bas, 2), rt_haut = round(rr$haut, 2),
          proj_4sem_mediane = x$p$total[["mediane"]], proj_4sem_bas80 = x$p$total[["bas80"]], proj_4sem_haut80 = x$p$total[["haut80"]],
@@ -188,7 +209,7 @@ resume <- bind_rows(lapply(names(res_sites), function(s) { x <- res_sites[[s]]; 
 write_csv(resume, "sortie/resume_sites.csv")
 
 zones_out <- ind |> transmute(rang, nom, province, niveau_risque, probabilite = round(probabilite, 3), impact = round(impact, 3),
-  classe_prob, classe_impact, statut, cas_cumules, deces_cumules, cas_21j, cas_21j_prec,
+  classe_prob, classe_impact, statut, evolution_7j, niveau_j7, rang_j7, alerte_7j, cas_cumules, deces_cumules, survivants_estimes, cas_21j, cas_21j_prec,
   incidence_21j_100k = round(incidence_21j_100k, 1), tendance = round(tendance, 2), letalite_42j = round(letalite_42j, 2),
   jours_depuis_dernier_cas, pression_importation = round(pression_importation, 1), rang_pression, alerte_precoce = ifelse(alerte_precoce, "Oui", "Non"),
   rang_actif, niveau_securite, acces_terrain, acled_evt_90j, acled_morts_90j, population = round(population),

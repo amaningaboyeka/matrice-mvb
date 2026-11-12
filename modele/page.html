@@ -29,6 +29,8 @@
 .mr .lv-te { background: var(--color-bad); } .mr .lv-e { background: var(--color-warn); }
 .mr .lv-m { background: color-mix(in srgb, var(--color-warn) 35%, var(--color-panel)); } .mr .lv-f { background: var(--cds-chart-muted); }
 .mr [hidden] { display: none !important; }
+.mr .chg { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); line-height: 1.5; }
+.mr .chg b { display: block; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); }
 .mr .lv-nr { background: repeating-linear-gradient(45deg, var(--cds-chart-muted), var(--cds-chart-muted) 2px, var(--color-bg) 2px, var(--color-bg) 4px); }
 .mr .legend i.or-a { background: transparent; border: 2.5px solid var(--color-fg); }
 .mr .legend i.or-p { background: transparent; border: 2.5px dashed var(--color-fg); }
@@ -73,11 +75,17 @@
     </div>
   </div>
 
+  <section class="card" id="changements">
+    <h2>Ce qui a changé en 7 jours</h2>
+    <p class="sub">Comparaison avec la matrice recalculée sur les données d’il y a 7 jours.</p>
+    <div class="chg" data-draw="changements" data-source="zones"></div>
+  </section>
+
   <section class="grid2" id="sites">
     <div class="card" id="carte-bunia">
       <h2>Bunia — zones à ≤ 3 h de route</h2>
       <div class="kpis">
-        <div class="kpi"><div class="v" data-draw="kv" data-source="sites" data-field="cas_21j" data-where="site=Bunia">—</div><div class="l">cas confirmés, 21 derniers jours</div><div class="s">21 j précédents : <span data-draw="kv" data-source="sites" data-field="cas_21j_prec" data-where="site=Bunia">—</span></div></div>
+        <div class="kpi"><div class="v" data-draw="kv" data-source="sites" data-field="cas_21j" data-where="site=Bunia">—</div><div class="l">cas confirmés, 21 derniers jours</div><div class="s">21 j précédents : <span data-draw="kv" data-source="sites" data-field="cas_21j_prec" data-where="site=Bunia">—</span> · survivants estimés : <span data-draw="kv" data-source="sites" data-field="survivants_estimes" data-where="site=Bunia">—</span></div></div>
         <div class="kpi"><div class="v" data-draw="kv" data-source="sites" data-field="croissance_hebdo_pct" data-where="site=Bunia" data-fmt="pct">—</div><div class="l">croissance hebdomadaire (6 sem.)</div><div class="s">IC95 <span data-draw="kv" data-source="sites" data-field="croissance_ic95_bas" data-where="site=Bunia" data-fmt="pct">—</span> à <span data-draw="kv" data-source="sites" data-field="croissance_ic95_haut" data-where="site=Bunia" data-fmt="pct">—</span></div></div>
         <div class="kpi"><div class="v" data-draw="kv" data-source="sites" data-field="rt" data-where="site=Bunia">—</div><div class="l">Rt (fenêtre 14 j)</div><div class="s">IC95 <span data-draw="kv" data-source="sites" data-field="rt_bas" data-where="site=Bunia">—</span>–<span data-draw="kv" data-source="sites" data-field="rt_haut" data-where="site=Bunia">—</span></div></div>
         <div class="kpi"><div class="v" data-draw="kv" data-source="sites" data-field="proj_4sem_mediane" data-where="site=Bunia">—</div><div class="l">cas projetés, 4 prochaines semaines</div><div class="s">IP80 <span data-draw="kv" data-source="sites" data-field="proj_4sem_bas80" data-where="site=Bunia">—</span>–<span data-draw="kv" data-source="sites" data-field="proj_4sem_haut80" data-where="site=Bunia">—</span> · <span data-draw="kv" data-source="sites" data-field="zones_attraction" data-where="site=Bunia">—</span> ZS, dont <span data-draw="kv" data-source="sites" data-field="zones_actives" data-where="site=Bunia">—</span> actives</div></div>
@@ -86,7 +94,7 @@
     <div class="card" id="carte-butembo">
       <h2>Butembo — zones à ≤ 3 h de route</h2>
       <div class="kpis">
-        <div class="kpi"><div class="v" data-draw="kv" data-source="sites" data-field="cas_21j" data-where="site=Butembo">—</div><div class="l">cas confirmés, 21 derniers jours</div><div class="s">21 j précédents : <span data-draw="kv" data-source="sites" data-field="cas_21j_prec" data-where="site=Butembo">—</span></div></div>
+        <div class="kpi"><div class="v" data-draw="kv" data-source="sites" data-field="cas_21j" data-where="site=Butembo">—</div><div class="l">cas confirmés, 21 derniers jours</div><div class="s">21 j précédents : <span data-draw="kv" data-source="sites" data-field="cas_21j_prec" data-where="site=Butembo">—</span> · survivants estimés : <span data-draw="kv" data-source="sites" data-field="survivants_estimes" data-where="site=Butembo">—</span></div></div>
         <div class="kpi"><div class="v" data-draw="kv" data-source="sites" data-field="croissance_hebdo_pct" data-where="site=Butembo" data-fmt="pct">—</div><div class="l">croissance hebdomadaire (6 sem.)</div><div class="s">IC95 <span data-draw="kv" data-source="sites" data-field="croissance_ic95_bas" data-where="site=Butembo" data-fmt="pct">—</span> à <span data-draw="kv" data-source="sites" data-field="croissance_ic95_haut" data-where="site=Butembo" data-fmt="pct">—</span></div></div>
         <div class="kpi"><div class="v" data-draw="kv" data-source="sites" data-field="rt" data-where="site=Butembo">—</div><div class="l">Rt (fenêtre 14 j)</div><div class="s">IC95 <span data-draw="kv" data-source="sites" data-field="rt_bas" data-where="site=Butembo">—</span>–<span data-draw="kv" data-source="sites" data-field="rt_haut" data-where="site=Butembo">—</span></div></div>
         <div class="kpi"><div class="v" data-draw="kv" data-source="sites" data-field="proj_4sem_mediane" data-where="site=Butembo">—</div><div class="l">cas projetés, 4 prochaines semaines</div><div class="s">IP80 <span data-draw="kv" data-source="sites" data-field="proj_4sem_bas80" data-where="site=Butembo">—</span>–<span data-draw="kv" data-source="sites" data-field="proj_4sem_haut80" data-where="site=Butembo">—</span> · <span data-draw="kv" data-source="sites" data-field="zones_attraction" data-where="site=Butembo">—</span> ZS, dont <span data-draw="kv" data-source="sites" data-field="zones_actives" data-where="site=Butembo">—</span> actives</div></div>
@@ -148,7 +156,7 @@
 
   <section class="card" id="zones-oracle">
     <h2>Zones d’intervention ORACLE</h2>
-    <p class="sub">Zones listées dans le fichier <i>donnees_terrain/zones_oracle.csv</i>, mis à jour par l’équipe du projet.</p>
+    <p class="sub">Zones listées dans le fichier <i>donnees_terrain/zones_oracle.csv</i>, mis à jour par l’équipe du projet. Survivants estimés = cas confirmés cumulés − décès confirmés (inclut les cas encore en cours de soins).</p>
     <div class="tw">
       <table data-source="zones" data-row-key="nom">
         <thead><tr>
@@ -161,6 +169,7 @@
           <th data-field="incidence_21j_100k" class="num">Incid./100 000</th>
           <th data-field="letalite_42j" class="num">Létalité 42 j</th>
           <th data-field="cas_cumules" class="num">Cas cumulés</th>
+          <th data-field="survivants_estimes" class="num">Survivants estimés</th>
         </tr></thead>
         <tbody data-draw="oracle"></tbody>
       </table>
@@ -169,7 +178,7 @@
 
   <section class="card" id="classement">
     <h2>Classement des zones de santé</h2>
-    <p class="sub">Trié par niveau de risque (matrice), puis par probabilité. Temps de route OSRM (estimation optimiste).</p>
+    <p class="sub">Trié par niveau de risque (matrice), puis par probabilité. ▲ ▼ : niveau en hausse ou en baisse depuis 7 jours. Temps de route OSRM (estimation optimiste).</p>
     <div class="tw">
       <table data-source="zones" data-row-key="nom">
         <thead><tr>
@@ -177,12 +186,14 @@
           <th data-field="nom">Zone de santé</th>
           <th data-field="province">Province</th>
           <th data-field="niveau_risque">Niveau</th>
+          <th data-field="evolution_7j">7 j</th>
           <th data-field="probabilite" class="num">Probabilité (0–100)</th>
           <th data-field="cas_21j" class="num">Cas 21 j</th>
           <th data-field="cas_21j_prec" class="num">21 j préc.</th>
           <th data-field="incidence_21j_100k" class="num">Incid./100 000</th>
           <th data-field="letalite_42j" class="num">Létalité 42 j</th>
           <th data-field="cas_cumules" class="num">Cas cumulés</th>
+          <th data-field="survivants_estimes" class="num">Survivants est.</th>
           <th data-field="niveau_securite">Sécurité</th>
           <th data-field="temps_Bunia_min" class="num">Route → Bunia (min)</th>
           <th data-field="temps_Butembo_min" class="num">Route → Butembo (min)</th>
@@ -199,7 +210,9 @@
       <li><b>Probabilité</b> (0–1) = 0,40 × cas des 21 derniers jours (log) + 0,25 × incidence pour 100 000 + 0,10 × tendance + 0,25 × pression d’importation. La pression d’importation additionne les cas des 21 derniers jours des autres zones de la RDC, pondérés par exp(−temps de route OSRM / 120 min). Indicateurs convertis en rangs centiles parmi les 70 zones.</li>
       <li><b>Impact</b> (0–1) = 0,25 × densité de population (WorldPop) + 0,20 × faible densité de formations sanitaires (GRID3) + 0,15 × privation socio-économique (CCVI) + 0,20 × létalité des 42 derniers jours (si ≥ 10 cas) + 0,20 × insécurité. Un indicateur manquant est retiré et les poids restants sont renormalisés.</li>
       <li><b>Insécurité</b> : moyenne de deux sources quand elles existent : (1) incidents ACLED des 90 derniers jours (combats, violences contre les civils, explosions) géolocalisés dans la zone de santé, en rang centile ; (2) avis des équipes de terrain ORACLE (accessible = 0 ; partiellement accessible = 0,5 ; inaccessible = 1), saisi dans <i>donnees_terrain/securite_terrain.csv</i>.</li>
-      <li><b>Matrice</b> : probabilité et impact classés Faible / Moyen / Élevé (seuils 1/3 et 2/3) ; produit 9 = très élevé ; 6 = élevé ; 3–4 = modéré ; 1–2 = faible. Probabilité et impact restent deux dimensions distinctes.</li>
+      <li><b>Matrice</b> : la <b>probabilité</b> est classée par seuils absolus, stables dans le temps : élevée si ≥ 20 cas confirmés ou ≥ 10 cas pour 100 000 habitants en 21 jours ; moyenne si au moins un cas en 21 jours ou zone en alerte précoce ; faible sinon. L’<b>impact</b> est classé Faible / Moyen / Élevé par tiers (seuils 1/3 et 2/3). Produit 9 = très élevé ; 6 = élevé ; 3–4 = modéré ; 1–2 = faible. Seuils proposés, à valider avec l’équipe du projet.</li>
+      <li><b>Évolution sur 7 jours</b> : la matrice est recalculée sur les données connues 7 jours plus tôt et comparée à celle du jour. Une copie du classement est archivée chaque jour (dossier <i>archive</i> du dépôt) pour l’évaluation prospective.</li>
+      <li><b>Survivants estimés</b> : cas confirmés cumulés moins décès confirmés ; cette estimation inclut les cas encore en cours de soins et sert à repérer les zones à fort potentiel de suivi.</li>
       <li><b>Validation rétrospective</b> (20 dates hebdomadaires, 7 juin–18 octobre 2026, données disponibles à chaque date) : la pression d’importation prédit l’apparition de cas dans une zone indemne à 21 jours avec une AUC de 0,76 (IC95 0,63–0,89) ; les cas récents prédisent l’intensité (Spearman 0,90). Un score mélangeant probabilité et vulnérabilité prédisait moins bien (AUC 0,58) : d’où les deux listes séparées.</li>
       <li><b>Projection</b> : régression quasi-Poisson log-linéaire sur 6 semaines, prolongée de 4 semaines avec une marche aléatoire sur le taux de croissance hebdomadaire. Couverture rétrospective : 80 % pour l’intervalle à 80 %, 93 % pour l’intervalle à 95 %.</li>
       <li><b>Rt</b> : EpiEstim, fenêtres de 14 jours, intervalle sériel d’Ebola (moyenne 15,3 j, écart-type 9,3 j ; WHO Ebola Response Team, 2014), calculé sur la date de notification : indicateur de tendance.</li>
@@ -230,7 +243,7 @@ window.MR.inSite = function (z) {
   const s = window.MR.site;
   return s === 'Tous' || z['attraction_' + s] === 'Oui';
 };
-window.MR.drawAll = function () { ['map', 'matrix', 'trend', 'rt', 'table', 'surveiller', 'renforcer', 'oracle'].forEach((n) => dash.draw(n)); };
+window.MR.drawAll = function () { ['map', 'matrix', 'trend', 'rt', 'table', 'surveiller', 'renforcer', 'oracle', 'changements'].forEach((n) => dash.draw(n)); };
 window.MR.tip = function (box) {
   let t = box.querySelector(':scope > .tip');
   if (!t) { t = document.createElement('div'); t.className = 'tip'; t.hidden = true; box.appendChild(t); }
@@ -484,7 +497,7 @@ dash.draw('oracle', (el) => {
     const vals = [[r.nom, ''], [window.MR.oracleTxt[r.nom], ''], [null, 'lvl'], [r.rang, 'num'], [num(r.cas_21j, ',d'), 'num'],
       [num(r.cas_21j_prec, ',d'), 'num'], [num(r.incidence_21j_100k, ',.1f'), 'num'],
       [(r.letalite_42j === '' || r.letalite_42j == null || r.letalite_42j === 'NA') ? '–' : fr.format('.0%')(+r.letalite_42j), 'num'],
-      [num(r.cas_cumules, ',d'), 'num']];
+      [num(r.cas_cumules, ',d'), 'num'], [num(r.survivants_estimes, ',d'), 'num']];
     vals.forEach(([v, c]) => {
       const td = document.createElement('td');
       if (c === 'lvl') { const s = document.createElement('span'); s.className = 'pill ' + window.MR.lvClass[r.niveau_risque]; s.textContent = r.niveau_risque; td.appendChild(s); }
@@ -505,10 +518,10 @@ dash.draw('table', (el) => {
   el.replaceChildren(...rows.map((r) => {
     const tr = document.createElement('tr'); tr.setAttribute('data-key', r.nom);
     const cells = [
-      [r.rang, 'num'], [r.nom, ''], [r.province, ''], [null, 'lvl'], [num(100 * (+r.probabilite), ',.0f'), 'num'],
+      [r.rang, 'num'], [r.nom, ''], [r.province, ''], [null, 'lvl'], [r.evolution_7j === 'En hausse' ? '▲' : r.evolution_7j === 'En baisse' ? '▼' : '=', ''], [num(100 * (+r.probabilite), ',.0f'), 'num'],
       [num(r.cas_21j, ',d'), 'num'], [num(r.cas_21j_prec, ',d'), 'num'], [num(r.incidence_21j_100k, ',.1f'), 'num'],
       [(r.letalite_42j === '' || r.letalite_42j == null || r.letalite_42j === 'NA') ? '–' : fr.format('.0%')(+r.letalite_42j), 'num'],
-      [num(r.cas_cumules, ',d'), 'num'], [r.niveau_securite, ''], [num(r.temps_Bunia_min, ',d'), 'num'], [num(r.temps_Butembo_min, ',d'), 'num']];
+      [num(r.cas_cumules, ',d'), 'num'], [num(r.survivants_estimes, ',d'), 'num'], [r.niveau_securite, ''], [num(r.temps_Bunia_min, ',d'), 'num'], [num(r.temps_Butembo_min, ',d'), 'num']];
     cells.forEach(([v, c]) => {
       const td = document.createElement('td');
       if (c === 'lvl') { const s = document.createElement('span'); s.className = 'pill ' + window.MR.lvClass[r.niveau_risque]; s.textContent = r.niveau_risque; td.appendChild(s); }
@@ -546,4 +559,16 @@ document.querySelectorAll('.mr [data-couche]').forEach((b) => b.addEventListener
   ['risque', 'securite', 'alerte'].forEach((k) => { const l = document.getElementById('leg-' + k); if (l) l.hidden = k !== window.MR.couche; });
   dash.draw('map');
 }));
+
+dash.draw('changements', (el) => { const z = dash.data('zones'); if (z.status !== 'ok') { el.textContent = '—'; return; }
+  el.replaceChildren();
+  const bloc = (titre, rows, fmt) => { const d = document.createElement('div'); const b = document.createElement('b'); b.textContent = `${titre} (${rows.length})`; d.appendChild(b);
+    const t = document.createElement('span'); t.textContent = rows.length ? rows.map(fmt).join(' ; ') : 'Aucune'; d.appendChild(t); el.appendChild(d); };
+  const R = z.data.filter((r) => window.MR.inSite(r));
+  bloc('Niveau en hausse', R.filter((r) => r.evolution_7j === 'En hausse'), (r) => `${r.nom} (${r.niveau_j7} → ${r.niveau_risque})`);
+  bloc('Niveau en baisse', R.filter((r) => r.evolution_7j === 'En baisse'), (r) => `${r.nom} (${r.niveau_j7} → ${r.niveau_risque})`);
+  bloc('Nouvelles alertes précoces', R.filter((r) => r.alerte_7j === 'Nouvelle alerte'), (r) => r.nom);
+  bloc('Alertes confirmées par des cas', R.filter((r) => /confirm/.test(r.alerte_7j)), (r) => `${r.nom} (${r.cas_21j} cas)`);
+  bloc('Alertes levées', R.filter((r) => r.alerte_7j === 'Alerte levée'), (r) => r.nom);
+});
 </script>
