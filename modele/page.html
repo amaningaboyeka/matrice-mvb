@@ -1,0 +1,549 @@
+<style>
+.mr { font-family: var(--font-anthropic-sans); color: var(--color-fg); display: flex; flex-direction: column; gap: var(--cds-gap-lg); }
+.mr h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; line-height: 1.2; }
+.mr h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-xs); }
+.mr .sub { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 0; }
+.mr .demo { border-left: 3px solid var(--color-fg-muted); border-radius: var(--cds-radius); padding: var(--cds-pad-sm) var(--cds-pad-md); font-size: var(--cds-font-size-caption); line-height: 1.5; color: var(--color-fg); background: var(--color-panel); }
+.mr .lead { font-size: var(--cds-font-size-body); line-height: 1.5; margin: 0; }
+.mr .lead b { font-weight: var(--cds-font-weight-medium); font-variant-numeric: tabular-nums; }
+.mr .card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
+.mr .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--cds-gap-md); }
+.mr .seg { display: inline-flex; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); overflow: hidden; }
+.mr .seg button { font: inherit; font-size: var(--cds-font-size-caption); padding: 6px 14px; border: 0; background: transparent; color: var(--color-fg-muted); cursor: pointer; }
+.mr .seg button[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); }
+.mr .bar { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; }
+.mr .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: var(--cds-gap-md); margin-top: var(--cds-gap-sm); }
+.mr .kpi .v { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 26px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.mr .kpi .l { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.mr .kpi .s { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.mr .chart { position: relative; min-height: 260px; }
+.mr .map { position: relative; min-height: 380px; }
+.mr .tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); box-shadow: var(--cds-shadow-popover); border-radius: var(--cds-radius); padding: 6px 9px; font-size: var(--cds-font-size-caption); max-width: 240px; z-index: 5; line-height: 1.4; }
+.mr .tip .t { font-weight: var(--cds-font-weight-medium); }
+.mr .axis text { fill: var(--cds-text-secondary); font-size: 11px; font-family: var(--font-anthropic-sans); }
+.mr .axis path, .mr .axis line { stroke: var(--cds-chart-axis); }
+.mr .gridl line { stroke: var(--cds-chart-grid); }
+.mr .gridl path { display: none; }
+.mr .legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-top: var(--cds-gap-xs); }
+.mr .legend i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.mr .lv-te { background: var(--color-bad); } .mr .lv-e { background: var(--color-warn); }
+.mr .lv-m { background: color-mix(in srgb, var(--color-warn) 35%, var(--color-panel)); } .mr .lv-f { background: var(--cds-chart-muted); }
+.mr [hidden] { display: none !important; }
+.mr .lv-nr { background: repeating-linear-gradient(45deg, var(--cds-chart-muted), var(--cds-chart-muted) 2px, var(--color-bg) 2px, var(--color-bg) 4px); }
+.mr .legend i.or-a { background: transparent; border: 2.5px solid var(--color-fg); }
+.mr .legend i.or-p { background: transparent; border: 2.5px dashed var(--color-fg); }
+.mr .tag { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 4px; font-size: 10px; border: 1px solid var(--color-fg); color: var(--color-fg); vertical-align: 1px; }
+.mr .tag.prep { border-style: dashed; }
+.mr .mx { display: grid; grid-template-columns: auto repeat(3, 1fr); gap: 4px; font-size: var(--cds-font-size-caption); }
+.mr .mx .cell { border-radius: 6px; padding: 8px; min-height: 64px; color: var(--color-fg); }
+.mr .mx .cell .n { font-family: var(--font-anthropic-serif); font-size: 22px; line-height: 1; }
+.mr .mx .cell .z { margin-top: 4px; line-height: 1.35; color: var(--color-fg); opacity: .85; }
+.mr .mx .hd { color: var(--color-fg-muted); display: flex; align-items: center; justify-content: center; text-align: center; padding: 4px; }
+.mr .tw { overflow-x: auto; }
+.mr table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.mr th { text-align: left; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: 6px 8px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.mr td { padding: 5px 8px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.mr td.num, .mr th.num { text-align: right; }
+.mr .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; }
+.mr .pill.lv-te { color: #fff; } .mr .pill.lv-e { color: #000; }
+.mr details { font-size: var(--cds-font-size-caption); line-height: 1.55; color: var(--color-fg); }
+.mr details summary { cursor: pointer; font-weight: var(--cds-font-weight-medium); }
+.mr details li { margin-bottom: 4px; }
+.mr [data-dash-source-state=refreshing] { opacity: .5; }
+.mr .note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: var(--cds-gap-xs) 0 0; }
+</style>
+
+<div class="mr">
+  <header id="entete">
+    <h1>Matrice de risque et classement des zones de santé — maladie à virus Bundibugyo, Ituri et Nord-Kivu</h1>
+    <p class="sub">Appui à la surveillance du projet ORACLE BDBV — sites de Bunia et de Butembo · données au <span data-draw="kv" data-source="sites" data-field="date_donnees" data-row="0">—</span> · Version <span class="meta" data-meta="version"></span> · mise à jour automatique le <span class="meta" data-meta="genere_le"></span></p>
+    <p class="sub">Préparé par Dr Gaylord Amani Ngaboyeka, MD, MPH, PhD — co-investigateur et responsable de la qualité des données, projet ORACLE BDBV ; ERSP/UCB</p>
+  </header>
+
+  <div class="demo" id="statut"><b>Objet.</b> Classer les zones de santé de l’Ituri et du Nord-Kivu selon le risque de transmission de la maladie à virus Bundibugyo, suivre la dynamique autour des sites ORACLE de Bunia et de Butembo et projeter les cas des 4 prochaines semaines, pour orienter la surveillance et la planification. <b>Sources</b> : rapports de situation de l’INSP (transcription INRB-UMIE), WorldPop, GRID3, OSRM, ACLED et avis des équipes de terrain ORACLE. Mise à jour automatique chaque jour. <span class="meta" data-meta="acled"></span> Zones renseignées par le terrain : <span class="meta" data-meta="zones_terrain_renseignees"></span>/70.</div>
+
+  <p class="lead" id="synthese">Sur les 70 zones de santé de l’Ituri et du Nord-Kivu, <b data-draw="nTE" data-source="niveaux_eleves">—</b> sont classées à risque très élevé ou élevé. Autour de Bunia, l’incidence hebdomadaire <b data-draw="trendword" data-site="Bunia" data-source="sites" data-field="croissance_hebdo_pct" data-where="site=Bunia">—</b> (Rt <b data-draw="kv" data-source="sites" data-field="rt" data-where="site=Bunia">—</b>) ; autour de Butembo, elle <b data-draw="trendword" data-site="Butembo" data-source="sites" data-field="croissance_hebdo_pct" data-where="site=Butembo">—</b> (Rt <b data-draw="kv" data-source="sites" data-field="rt" data-where="site=Butembo">—</b>). <b data-draw="nAlert">—</b> zones sans cas récent sont en alerte précoce.</p>
+
+  <div class="bar" id="filtre-site">
+    <span class="sub">Afficher :</span>
+    <div class="seg" role="group" aria-label="Site">
+      <button type="button" data-site="Tous" aria-pressed="true">Toutes les zones</button>
+      <button type="button" data-site="Bunia" aria-pressed="false">Zone d’attraction de Bunia</button>
+      <button type="button" data-site="Butembo" aria-pressed="false">Zone d’attraction de Butembo</button>
+    </div>
+  </div>
+
+  <section class="grid2" id="sites">
+    <div class="card" id="carte-bunia">
+      <h2>Bunia — zones à ≤ 3 h de route</h2>
+      <div class="kpis">
+        <div class="kpi"><div class="v" data-draw="kv" data-source="sites" data-field="cas_21j" data-where="site=Bunia">—</div><div class="l">cas confirmés, 21 derniers jours</div><div class="s">21 j précédents : <span data-draw="kv" data-source="sites" data-field="cas_21j_prec" data-where="site=Bunia">—</span></div></div>
+        <div class="kpi"><div class="v" data-draw="kv" data-source="sites" data-field="croissance_hebdo_pct" data-where="site=Bunia" data-fmt="pct">—</div><div class="l">croissance hebdomadaire (6 sem.)</div><div class="s">IC95 <span data-draw="kv" data-source="sites" data-field="croissance_ic95_bas" data-where="site=Bunia" data-fmt="pct">—</span> à <span data-draw="kv" data-source="sites" data-field="croissance_ic95_haut" data-where="site=Bunia" data-fmt="pct">—</span></div></div>
+        <div class="kpi"><div class="v" data-draw="kv" data-source="sites" data-field="rt" data-where="site=Bunia">—</div><div class="l">Rt (fenêtre 14 j)</div><div class="s">IC95 <span data-draw="kv" data-source="sites" data-field="rt_bas" data-where="site=Bunia">—</span>–<span data-draw="kv" data-source="sites" data-field="rt_haut" data-where="site=Bunia">—</span></div></div>
+        <div class="kpi"><div class="v" data-draw="kv" data-source="sites" data-field="proj_4sem_mediane" data-where="site=Bunia">—</div><div class="l">cas projetés, 4 prochaines semaines</div><div class="s">IP80 <span data-draw="kv" data-source="sites" data-field="proj_4sem_bas80" data-where="site=Bunia">—</span>–<span data-draw="kv" data-source="sites" data-field="proj_4sem_haut80" data-where="site=Bunia">—</span> · <span data-draw="kv" data-source="sites" data-field="zones_attraction" data-where="site=Bunia">—</span> ZS, dont <span data-draw="kv" data-source="sites" data-field="zones_actives" data-where="site=Bunia">—</span> actives</div></div>
+      </div>
+    </div>
+    <div class="card" id="carte-butembo">
+      <h2>Butembo — zones à ≤ 3 h de route</h2>
+      <div class="kpis">
+        <div class="kpi"><div class="v" data-draw="kv" data-source="sites" data-field="cas_21j" data-where="site=Butembo">—</div><div class="l">cas confirmés, 21 derniers jours</div><div class="s">21 j précédents : <span data-draw="kv" data-source="sites" data-field="cas_21j_prec" data-where="site=Butembo">—</span></div></div>
+        <div class="kpi"><div class="v" data-draw="kv" data-source="sites" data-field="croissance_hebdo_pct" data-where="site=Butembo" data-fmt="pct">—</div><div class="l">croissance hebdomadaire (6 sem.)</div><div class="s">IC95 <span data-draw="kv" data-source="sites" data-field="croissance_ic95_bas" data-where="site=Butembo" data-fmt="pct">—</span> à <span data-draw="kv" data-source="sites" data-field="croissance_ic95_haut" data-where="site=Butembo" data-fmt="pct">—</span></div></div>
+        <div class="kpi"><div class="v" data-draw="kv" data-source="sites" data-field="rt" data-where="site=Butembo">—</div><div class="l">Rt (fenêtre 14 j)</div><div class="s">IC95 <span data-draw="kv" data-source="sites" data-field="rt_bas" data-where="site=Butembo">—</span>–<span data-draw="kv" data-source="sites" data-field="rt_haut" data-where="site=Butembo">—</span></div></div>
+        <div class="kpi"><div class="v" data-draw="kv" data-source="sites" data-field="proj_4sem_mediane" data-where="site=Butembo">—</div><div class="l">cas projetés, 4 prochaines semaines</div><div class="s">IP80 <span data-draw="kv" data-source="sites" data-field="proj_4sem_bas80" data-where="site=Butembo">—</span>–<span data-draw="kv" data-source="sites" data-field="proj_4sem_haut80" data-where="site=Butembo">—</span> · <span data-draw="kv" data-source="sites" data-field="zones_attraction" data-where="site=Butembo">—</span> ZS, dont <span data-draw="kv" data-source="sites" data-field="zones_actives" data-where="site=Butembo">—</span> actives</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid2" id="carte-et-matrice">
+    <div class="card" id="carte-risque">
+      <h2>Carte du niveau de risque</h2>
+      <div class="seg" role="group" aria-label="Couche" style="margin:4px 0 6px"><button type="button" data-couche="risque" aria-pressed="true">Niveau de risque</button><button type="button" data-couche="securite" aria-pressed="false">Sécurité</button><button type="button" data-couche="alerte" aria-pressed="false">Alerte précoce</button></div>
+      <p class="sub">Cercles : sites de Bunia et de Butembo. Contour plein : zone ORACLE en cours ; pointillés : en préparation.</p>
+      <div class="map" data-draw="map" data-source="zones geo"></div>
+      <div class="legend" id="leg-risque"><span><i class="lv-te"></i>Très élevé</span><span><i class="lv-e"></i>Élevé</span><span><i class="lv-m"></i>Modéré</span><span><i class="lv-f"></i>Faible</span></div>
+      <div class="legend" id="leg-securite" hidden><span><i class="lv-te"></i>Insécurité élevée</span><span><i class="lv-e"></i>Moyenne</span><span><i class="lv-m"></i>Faible</span><span><i class="lv-nr"></i>Non renseigné</span></div>
+      <div class="legend" id="leg-alerte" hidden><span><i class="lv-te"></i>Alerte précoce (zone sans cas récent très exposée)</span><span><i class="lv-e"></i>Zone active</span><span><i class="lv-f"></i>Autre</span></div>
+      <div class="legend"><span><i class="or-a"></i>Zone d’intervention ORACLE (en cours)</span><span><i class="or-p"></i>Zone ORACLE en préparation</span></div>
+    </div>
+    <div class="card" id="matrice">
+      <h2>Matrice probabilité × impact</h2>
+      <p class="sub">Nombre de zones de santé par case ; noms des zones dans chaque case.</p>
+      <div class="mx" data-draw="matrix" data-source="zones"></div>
+      <p class="note">Probabilité : cas récents, incidence, tendance, pression d’importation depuis les zones voisines. Impact : densité de population, accès aux formations sanitaires, privation socio-économique, létalité récente et insécurité (ACLED, avis du terrain).</p>
+    </div>
+  </section>
+
+  <section class="grid2" id="dynamique">
+    <div class="card" id="projections">
+      <h2>Cas hebdomadaires et projection à 4 semaines</h2>
+      <p class="sub">Cas confirmés par semaine de notification, zone d’attraction de chaque site ; bande : intervalle de prédiction à 80 % et 95 %.</p>
+      <div class="chart" data-draw="trend" data-source="series"></div>
+    </div>
+    <div class="card" id="nombre-reproduction">
+      <h2>Nombre de reproduction effectif (Rt)</h2>
+      <p class="sub">EpiEstim, fenêtres glissantes de 14 jours, sur la date de notification ; ligne pointillée : Rt = 1.</p>
+      <div class="chart" data-draw="rt" data-source="rt"></div>
+    </div>
+  </section>
+
+  <section class="grid2" id="listes">
+    <div class="card" id="surveiller">
+      <h2>Zones à surveiller — alerte précoce</h2>
+      <p class="sub">Zones sans cas depuis 21 jours, classées par pression d’importation (cas récents des zones voisines pondérés par le temps de route). Alerte = quintile supérieur. Validation juin–octobre 2026 : AUC 0,76 ; une zone en alerte a 2,3 fois plus de risque d’être touchée dans les 21 jours.</p>
+      <div class="tw"><table data-source="zones" data-row-key="nom"><thead><tr>
+        <th data-field="rang_pression" class="num">Rang</th><th data-field="nom">Zone de santé</th>
+        <th data-field="statut">Statut</th><th data-field="pression_importation" class="num">Pression</th><th data-field="niveau_securite">Sécurité</th>
+        <th data-field="temps_Bunia_min" class="num">→ Bunia (min)</th><th data-field="temps_Butembo_min" class="num">→ Butembo (min)</th>
+      </tr></thead><tbody data-draw="surveiller"></tbody></table></div>
+    </div>
+    <div class="card" id="renforcer">
+      <h2>Zones actives à renforcer</h2>
+      <p class="sub">Zones ayant notifié des cas dans les 21 derniers jours, classées par nombre de cas (meilleur prédicteur de l’intensité à venir : Spearman 0,90). Les 12 premières sont affichées.</p>
+      <div class="tw"><table data-source="zones" data-row-key="nom"><thead><tr>
+        <th data-field="rang_actif" class="num">Rang</th><th data-field="nom">Zone de santé</th><th data-field="cas_21j" class="num">Cas 21 j</th>
+        <th data-field="cas_21j_prec" class="num">21 j préc.</th><th data-field="incidence_21j_100k" class="num">Incid./100 000</th><th data-field="niveau_securite">Sécurité</th>
+      </tr></thead><tbody data-draw="renforcer"></tbody></table></div>
+    </div>
+  </section>
+
+  <section class="card" id="zones-oracle">
+    <h2>Zones d’intervention ORACLE</h2>
+    <p class="sub">Zones listées dans le fichier <i>donnees_terrain/zones_oracle.csv</i>, mis à jour par l’équipe du projet.</p>
+    <div class="tw">
+      <table data-source="zones" data-row-key="nom">
+        <thead><tr>
+          <th data-field="nom">Zone de santé</th>
+          <th>Statut ORACLE</th>
+          <th data-field="niveau_risque">Niveau</th>
+          <th data-field="rang" class="num">Rang /70</th>
+          <th data-field="cas_21j" class="num">Cas 21 j</th>
+          <th data-field="cas_21j_prec" class="num">21 j préc.</th>
+          <th data-field="incidence_21j_100k" class="num">Incid./100 000</th>
+          <th data-field="letalite_42j" class="num">Létalité 42 j</th>
+          <th data-field="cas_cumules" class="num">Cas cumulés</th>
+        </tr></thead>
+        <tbody data-draw="oracle"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card" id="classement">
+    <h2>Classement des zones de santé</h2>
+    <p class="sub">Trié par niveau de risque (matrice), puis par probabilité. Temps de route OSRM (estimation optimiste).</p>
+    <div class="tw">
+      <table data-source="zones" data-row-key="nom">
+        <thead><tr>
+          <th data-field="rang" class="num">Rang</th>
+          <th data-field="nom">Zone de santé</th>
+          <th data-field="province">Province</th>
+          <th data-field="niveau_risque">Niveau</th>
+          <th data-field="probabilite" class="num">Probabilité (0–100)</th>
+          <th data-field="cas_21j" class="num">Cas 21 j</th>
+          <th data-field="cas_21j_prec" class="num">21 j préc.</th>
+          <th data-field="incidence_21j_100k" class="num">Incid./100 000</th>
+          <th data-field="letalite_42j" class="num">Létalité 42 j</th>
+          <th data-field="cas_cumules" class="num">Cas cumulés</th>
+          <th data-field="niveau_securite">Sécurité</th>
+          <th data-field="temps_Bunia_min" class="num">Route → Bunia (min)</th>
+          <th data-field="temps_Butembo_min" class="num">Route → Butembo (min)</th>
+        </tr></thead>
+        <tbody data-draw="table"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <details id="methode">
+    <summary>Méthode, validation, sources et limites</summary>
+    <ul>
+      <li><b>Données épidémiologiques</b> : cas et décès confirmés cumulés par zone de santé, transcrits quotidiennement des rapports de situation de l’INSP par l’INRB-UMIE (dépôt public Ebola_DRC_2026). Reclassements à la baisse corrigés, jours sans rapport interpolés. Mise à jour automatique chaque jour.</li>
+      <li><b>Probabilité</b> (0–1) = 0,40 × cas des 21 derniers jours (log) + 0,25 × incidence pour 100 000 + 0,10 × tendance + 0,25 × pression d’importation. La pression d’importation additionne les cas des 21 derniers jours des autres zones de la RDC, pondérés par exp(−temps de route OSRM / 120 min). Indicateurs convertis en rangs centiles parmi les 70 zones.</li>
+      <li><b>Impact</b> (0–1) = 0,25 × densité de population (WorldPop) + 0,20 × faible densité de formations sanitaires (GRID3) + 0,15 × privation socio-économique (CCVI) + 0,20 × létalité des 42 derniers jours (si ≥ 10 cas) + 0,20 × insécurité. Un indicateur manquant est retiré et les poids restants sont renormalisés.</li>
+      <li><b>Insécurité</b> : moyenne de deux sources quand elles existent : (1) incidents ACLED des 90 derniers jours (combats, violences contre les civils, explosions) géolocalisés dans la zone de santé, en rang centile ; (2) avis des équipes de terrain ORACLE (accessible = 0 ; partiellement accessible = 0,5 ; inaccessible = 1), saisi dans <i>donnees_terrain/securite_terrain.csv</i>.</li>
+      <li><b>Matrice</b> : probabilité et impact classés Faible / Moyen / Élevé (seuils 1/3 et 2/3) ; produit 9 = très élevé ; 6 = élevé ; 3–4 = modéré ; 1–2 = faible. Probabilité et impact restent deux dimensions distinctes.</li>
+      <li><b>Validation rétrospective</b> (20 dates hebdomadaires, 7 juin–18 octobre 2026, données disponibles à chaque date) : la pression d’importation prédit l’apparition de cas dans une zone indemne à 21 jours avec une AUC de 0,76 (IC95 0,63–0,89) ; les cas récents prédisent l’intensité (Spearman 0,90). Un score mélangeant probabilité et vulnérabilité prédisait moins bien (AUC 0,58) : d’où les deux listes séparées.</li>
+      <li><b>Projection</b> : régression quasi-Poisson log-linéaire sur 6 semaines, prolongée de 4 semaines avec une marche aléatoire sur le taux de croissance hebdomadaire. Couverture rétrospective : 80 % pour l’intervalle à 80 %, 93 % pour l’intervalle à 95 %.</li>
+      <li><b>Rt</b> : EpiEstim, fenêtres de 14 jours, intervalle sériel d’Ebola (moyenne 15,3 j, écart-type 9,3 j ; WHO Ebola Response Team, 2014), calculé sur la date de notification : indicateur de tendance.</li>
+      <li><b>Limites</b> : données de notification (retards, cas non attribués), temps de route théoriques, couverture ACLED variable selon le niveau d’accès du compte, pondérations à valider avec l’équipe du projet. Complète, sans la remplacer, l’analyse de la sous-commission surveillance.</li>
+      <li><b>Code et données</b> : tout le code (R) et les tableaux produits sont publics et téléchargeables : <a href="donnees/zones_classement.csv">classement (CSV)</a> · <a href="donnees/series_hebdo_projections.csv">séries et projections (CSV)</a> · <a href="matrice_risque_MVB.pdf">version PDF</a>.</li>
+    </ul>
+  </details>
+</div>
+
+<script>
+window.MR = window.MR || { site: 'Tous' };
+// Zones d'intervention ORACLE (information du projet, mise à jour manuelle)
+window.MR.oracle = {}; window.MR.oracleTxt = {};
+(dash.data('zones').data || []).forEach((r) => { if (r.oracle_statut) { window.MR.oracle[r.nom] = /cours/i.test(r.oracle_statut) ? 'active' : 'prep'; window.MR.oracleTxt[r.nom] = r.oracle_statut + (r.oracle_commentaire ? ' (' + r.oracle_commentaire + ')' : ''); } });
+window.MR.oracleLabel = { active: 'Intervention en cours', prep: 'En préparation' };
+window.MR.couche = 'risque';
+window.MR.secColor = { 'Élevé': 'var(--color-bad)', 'Moyen': 'var(--color-warn)', 'Faible': 'color-mix(in srgb, var(--color-warn) 35%, var(--color-panel))', 'Non renseigné': 'url(#hachure)' };
+window.MR.fillZone = function (r) {
+  if (window.MR.couche === 'securite') return window.MR.secColor[r.niveau_securite] || 'url(#hachure)';
+  if (window.MR.couche === 'alerte') return r.alerte_precoce === 'Oui' ? 'var(--color-bad)' : (+r.cas_21j > 0 ? 'var(--color-warn)' : 'var(--cds-chart-muted)');
+  return window.MR.lvColor[r.niveau_risque];
+};
+document.querySelectorAll('[data-meta]').forEach((el) => { const k = el.getAttribute('data-meta'); el.textContent = (window.META && window.META[k] != null) ? String(window.META[k]) : ''; });
+window.MR.fr = d3.formatLocale({ decimal: ',', thousands: ' ', grouping: [3], currency: ['', ' FC'] });
+window.MR.lvClass = { 'Très élevé': 'lv-te', 'Élevé': 'lv-e', 'Modéré': 'lv-m', 'Faible': 'lv-f' };
+window.MR.lvColor = { 'Très élevé': 'var(--color-bad)', 'Élevé': 'var(--color-warn)', 'Modéré': 'color-mix(in srgb, var(--color-warn) 35%, var(--color-panel))', 'Faible': 'var(--cds-chart-muted)' };
+window.MR.inSite = function (z) {
+  const s = window.MR.site;
+  return s === 'Tous' || z['attraction_' + s] === 'Oui';
+};
+window.MR.drawAll = function () { ['map', 'matrix', 'trend', 'rt', 'table', 'surveiller', 'renforcer', 'oracle'].forEach((n) => dash.draw(n)); };
+window.MR.tip = function (box) {
+  let t = box.querySelector(':scope > .tip');
+  if (!t) { t = document.createElement('div'); t.className = 'tip'; t.hidden = true; box.appendChild(t); }
+  return t;
+};
+window.MR.place = function (box, tip, ev) {
+  const r = box.getBoundingClientRect();
+  let x = ev.clientX - r.left + 12, y = ev.clientY - r.top + 12;
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  if (x + w > r.width) x = Math.max(0, ev.clientX - r.left - w - 12);
+  if (y + h > r.height) y = Math.max(0, ev.clientY - r.top - h - 12);
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+};
+</script>
+
+<script>
+document.querySelectorAll('.mr .seg button[data-site]').forEach((b) => {
+  b.addEventListener('click', () => {
+    window.MR.site = b.getAttribute('data-site');
+    document.querySelectorAll('.mr .seg button[data-site]').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    window.MR.drawAll();
+  });
+});
+</script>
+
+<script>
+// Valeurs ponctuelles (cartes, phrase de synthèse)
+dash.draw('kv', (el) => {
+  const src = el.getAttribute('data-source'), f = el.getAttribute('data-field');
+  const d = dash.data(src);
+  if (d.status !== 'ok') { el.textContent = '—'; return; }
+  let row;
+  const w = el.getAttribute('data-where');
+  if (w) { const [k, v] = w.split('='); row = d.data.find((r) => String(r[k]) === v); }
+  else row = d.data[+el.getAttribute('data-row') || 0];
+  if (!row) { el.textContent = '—'; return; }
+  const v = row[f];
+  const fr = window.MR.fr;
+  if (f === 'date_donnees') { el.textContent = d3.utcFormat('%d/%m/%Y')(new Date(v)); return; }
+  const x = +v;
+  if (el.getAttribute('data-fmt') === 'pct') el.textContent = (x > 0 ? '+' : '') + fr.format(',.1f')(x) + ' %';
+  else if (Number.isInteger(x)) el.textContent = fr.format(',d')(x);
+  else el.textContent = fr.format(',.2f')(x);
+});
+
+dash.calc('niveaux_eleves', {
+  inputs: ['zones'],
+  title: 'Zones à risque très élevé ou élevé',
+  description: 'Nombre de zones de santé dont le niveau de risque est « Très élevé » ou « Élevé ».',
+  fn: (zones) => zones.filter((z) => z.niveau_risque === 'Très élevé' || z.niveau_risque === 'Élevé').length
+});
+dash.draw('nTE', (el) => {
+  const d = dash.data('niveaux_eleves');
+  el.textContent = d.status === 'ok' && d.data != null ? String(d.data) : '—';
+});
+dash.draw('trendword', (el) => {
+  const d = dash.data('sites');
+  const s = el.getAttribute('data-site');
+  if (d.status !== 'ok') { el.textContent = '—'; return; }
+  const r = d.data.find((x) => x.site === s); if (!r) { el.textContent = '—'; return; }
+  const lo = +r.croissance_ic95_bas, hi = +r.croissance_ic95_haut;
+  el.textContent = hi < 0 ? 'diminue' : lo > 0 ? 'augmente' : 'est stable';
+});
+</script>
+
+<script>
+// Carte
+dash.draw('map', (el) => {
+  const z = dash.data('zones'), g = dash.data('geo');
+  if (z.status !== 'ok' || g.status !== 'ok' || !g.data || !g.data.features) { el.textContent = (z.status === 'error' || g.status === 'error') ? 'Échec du chargement' : '—'; return; }
+  el.textContent = '';
+  const byName = new Map(z.data.map((r) => [r.nom, r]));
+  const W = el.clientWidth || 400, H = Math.max(380, Math.min(560, W * 1.15));
+  const proj = d3.geoMercator().fitExtent([[6, 6], [W - 6, H - 6]], g.data);
+  const path = d3.geoPath(proj);
+  const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('role', 'img').attr('aria-label', 'Carte des zones de santé de l’Ituri et du Nord-Kivu colorées selon le niveau de risque');
+  const pat = svg.append('defs').append('pattern').attr('id', 'hachure').attr('patternUnits', 'userSpaceOnUse').attr('width', 5).attr('height', 5).attr('patternTransform', 'rotate(45)');
+  pat.append('rect').attr('width', 5).attr('height', 5).style('fill', 'var(--color-bg)'); pat.append('rect').attr('width', 2).attr('height', 5).style('fill', 'var(--cds-chart-muted)');
+  const tip = window.MR.tip(el);
+  const fr = window.MR.fr;
+  svg.append('g').selectAll('path').data(g.data.features).join('path')
+    .attr('d', path)
+    .style('fill', (f) => { const r = byName.get(f.properties.nom); return r ? window.MR.fillZone(r) : 'transparent'; })
+    .style('stroke', 'var(--color-bg)').style('stroke-width', 0.7)
+    .style('opacity', (f) => { const r = byName.get(f.properties.nom); return r && window.MR.inSite(r) ? 1 : 0.18; })
+    .on('pointermove', (ev, f) => {
+      const r = byName.get(f.properties.nom); if (!r) return;
+      tip.replaceChildren();
+      const t = document.createElement('div'); t.className = 't'; t.textContent = `${r.nom} (${r.province}) — rang ${r.rang}`; tip.appendChild(t);
+      if (window.MR.oracle[r.nom]) { const o = document.createElement('div'); o.textContent = 'ORACLE : ' + window.MR.oracleTxt[r.nom]; o.style.fontWeight = '600'; tip.appendChild(o); }
+      [`Niveau : ${r.niveau_risque} (probabilité ${fr.format('.0f')(100 * r.probabilite)}, impact ${fr.format('.0f')(100 * r.impact)})`, `Sécurité : ${r.niveau_securite}${r.acces_terrain && r.acces_terrain !== 'Non renseigné' ? ' — terrain : ' + r.acces_terrain : ''}${r.acled_evt_90j !== '' && r.acled_evt_90j != null ? ' — ACLED 90 j : ' + r.acled_evt_90j + ' incidents' : ''}`, `Alerte précoce : ${r.alerte_precoce}`,
+       `Cas 21 derniers jours : ${r.cas_21j} (21 j préc. : ${r.cas_21j_prec})`,
+       `Cas cumulés : ${fr.format(',d')(+r.cas_cumules)}`,
+       `Route → Bunia : ${r.temps_Bunia_min} min ; → Butembo : ${r.temps_Butembo_min} min`].forEach((s) => { const p = document.createElement('div'); p.textContent = s; tip.appendChild(p); });
+      tip.hidden = false; window.MR.place(el, tip, ev);
+    })
+    .on('pointerleave', () => { tip.hidden = true; });
+  const og = svg.append('g').style('pointer-events', 'none');
+  og.selectAll('path').data(g.data.features.filter((f) => window.MR.oracle[f.properties.nom])).join('path')
+    .attr('d', path).style('fill', 'none').style('stroke', 'var(--color-fg)')
+    .style('stroke-width', 2.6).style('stroke-dasharray', (f) => window.MR.oracle[f.properties.nom] === 'prep' ? '5 3' : null);
+  const sites = g.data.features.filter((f) => f.properties.nom === 'Bunia' || f.properties.nom === 'Butembo');
+  const sg = svg.append('g').style('pointer-events', 'none');
+  sites.forEach((f) => {
+    const [x, y] = proj([f.properties.cx, f.properties.cy]);
+    sg.append('circle').attr('cx', x).attr('cy', y).attr('r', 6).style('fill', 'var(--color-bg)').style('stroke', 'var(--color-fg)').style('stroke-width', 2);
+    const lab = sg.append('text').attr('x', x + 9).attr('y', y + 4).text(f.properties.nom)
+      .style('font-size', '12px').style('font-family', 'var(--font-anthropic-sans)').style('font-weight', 600)
+      .style('fill', 'var(--color-fg)').style('paint-order', 'stroke').style('stroke', 'var(--color-bg)').style('stroke-width', 3);
+    const tw = lab.node().getComputedTextLength() || 60;
+    if (x + 9 + tw > W - 2) lab.attr('x', x - 9).attr('text-anchor', 'end');
+  });
+});
+
+// Matrice 3 x 3
+dash.draw('matrix', (el) => {
+  const z = dash.data('zones');
+  if (z.status !== 'ok') { el.textContent = z.status === 'error' ? 'Échec du chargement' : '—'; return; }
+  el.replaceChildren();
+  const P = ['Élevée', 'Moyenne', 'Faible'], I = ['Faible', 'Moyen', 'Élevé'];
+  const lvl = (p, i) => { const s = (3 - P.indexOf(p)) * (I.indexOf(i) + 1); return s === 9 ? 'Très élevé' : s === 6 ? 'Élevé' : s >= 3 ? 'Modéré' : 'Faible'; };
+  const add = (cls, txt) => { const d = document.createElement('div'); d.className = cls; if (txt) d.textContent = txt; el.appendChild(d); return d; };
+  add('hd', '');
+  I.forEach((i) => add('hd', 'Impact ' + i.toLowerCase()));
+  P.forEach((p) => {
+    add('hd', 'Probabilité ' + p.toLowerCase());
+    I.forEach((i) => {
+      const rows = z.data.filter((r) => r.classe_prob === p && r.classe_impact === i && window.MR.inSite(r));
+      const c = add('cell');
+      c.style.background = window.MR.lvColor[lvl(p, i)];
+      if (lvl(p, i) === 'Très élevé') c.style.color = '#fff';
+      const n = document.createElement('div'); n.className = 'n'; n.textContent = rows.length; c.appendChild(n);
+      const t = document.createElement('div'); t.className = 'z';
+      t.textContent = rows.slice(0, 8).map((r) => r.nom).join(', ') + (rows.length > 8 ? ` +${rows.length - 8}` : '');
+      if (lvl(p, i) === 'Très élevé') t.style.color = '#fff';
+      c.appendChild(t);
+    });
+  });
+});
+
+// Séries et projections
+dash.draw('trend', (el) => {
+  const s = dash.data('series');
+  if (s.status !== 'ok') { el.textContent = s.status === 'error' ? 'Échec du chargement' : '—'; return; }
+  el.textContent = '';
+  const parse = d3.utcParse('%Y-%m-%d');
+  const sites = window.MR.site === 'Tous' ? ['Bunia', 'Butembo'] : [window.MR.site];
+  const rows = s.data.filter((r) => sites.includes(r.site)).map((r) => ({ ...r, d: parse(r.semaine_fin), y: +r.cas,
+    a80: r.pi80_bas === '' || r.pi80_bas == null ? null : +r.pi80_bas, b80: r.pi80_haut === '' || r.pi80_haut == null ? null : +r.pi80_haut,
+    a95: r.pi95_bas === '' || r.pi95_bas == null ? null : +r.pi95_bas, b95: r.pi95_haut === '' || r.pi95_haut == null ? null : +r.pi95_haut }));
+  const W = el.clientWidth || 400, H = 260, m = { t: 10, r: 66, b: 26, l: 40 };
+  const x = d3.scaleUtc(d3.extent(rows, (r) => r.d), [m.l, W - m.r]);
+  const y = d3.scaleLinear([0, d3.max(rows, (r) => Math.max(r.y, r.b95 || 0)) * 1.05], [H - m.b, m.t]).nice();
+  const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('role', 'img').attr('aria-label', 'Cas confirmés hebdomadaires observés et projetés par zone d’attraction de site');
+  svg.append('g').attr('class', 'gridl').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickSize(-(W - m.l - m.r)).tickFormat(''));
+  svg.append('g').attr('class', 'axis').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(Math.max(2, Math.floor(W / 110))).tickFormat(d3.utcFormat('%d/%m')));
+  svg.append('g').attr('class', 'axis').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5));
+  const dataEnd = d3.max(rows.filter((r) => r.type === 'Observé'), (r) => r.d);
+  svg.append('line').attr('x1', x(dataEnd)).attr('x2', x(dataEnd)).attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-reference)').style('stroke-dasharray', '3 3');
+  sites.forEach((site, i) => {
+    const col = dash.colors[i];
+    const obs = rows.filter((r) => r.site === site && r.type === 'Observé');
+    const pr = rows.filter((r) => r.site === site && r.type === 'Projection');
+    const last = obs[obs.length - 1];
+    const band = (lo, hi, op) => svg.append('path').datum([{ d: last.d, lo: last.y, hi: last.y }, ...pr.map((r) => ({ d: r.d, lo: r[lo], hi: r[hi] }))])
+      .attr('d', d3.area().x((p) => x(p.d)).y0((p) => y(p.lo)).y1((p) => y(p.hi))).style('fill', col).style('opacity', op);
+    band('a95', 'b95', 0.12); band('a80', 'b80', 0.2);
+    svg.append('path').datum(obs).attr('d', d3.line().x((p) => x(p.d)).y((p) => y(p.y))).style('fill', 'none').style('stroke', col).style('stroke-width', 2);
+    svg.append('path').datum([last, ...pr]).attr('d', d3.line().x((p) => x(p.d)).y((p) => y(p.y))).style('fill', 'none').style('stroke', col).style('stroke-width', 2).style('stroke-dasharray', '5 4');
+    svg.append('g').selectAll('circle').data(obs).join('circle').attr('cx', (p) => x(p.d)).attr('cy', (p) => y(p.y)).attr('r', 2.5).style('fill', col);
+    const lp = pr[pr.length - 1];
+    svg.append('text').attr('x', x(lp.d) + 6).attr('y', y(lp.y) + 4 + (sites.length > 1 && i === 1 && Math.abs(y(lp.y) - y(rows.filter((r) => r.site === sites[0] && r.type === 'Projection').slice(-1)[0].y)) < 14 ? 14 : 0))
+      .text(site).style('fill', col).style('font-size', '12px').style('font-family', 'var(--font-anthropic-sans)');
+  });
+  const tip = window.MR.tip(el);
+  const fr = window.MR.fr;
+  svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).style('fill', 'transparent')
+    .on('pointermove', (ev) => {
+      const [px] = d3.pointer(ev);
+      const dates = Array.from(new Set(rows.map((r) => +r.d))).sort((a, b) => a - b);
+      const dd = dates.reduce((a, b) => Math.abs(b - x.invert(px)) < Math.abs(a - x.invert(px)) ? b : a);
+      const here = rows.filter((r) => +r.d === dd);
+      tip.replaceChildren();
+      const t = document.createElement('div'); t.className = 't'; t.textContent = 'Semaine se terminant le ' + d3.utcFormat('%d/%m/%Y')(new Date(dd)); tip.appendChild(t);
+      here.forEach((r) => { const p = document.createElement('div');
+        p.textContent = r.type === 'Observé' ? `${r.site} : ${fr.format(',d')(r.y)} cas observés` : `${r.site} : ${fr.format(',d')(r.y)} projetés (IP80 ${r.a80}–${r.b80})`;
+        tip.appendChild(p); });
+      tip.hidden = false; window.MR.place(el, tip, ev);
+    })
+    .on('pointerleave', () => { tip.hidden = true; });
+});
+
+// Rt
+dash.draw('rt', (el) => {
+  const s = dash.data('rt');
+  if (s.status !== 'ok') { el.textContent = s.status === 'error' ? 'Échec du chargement' : '—'; return; }
+  el.textContent = '';
+  const parse = d3.utcParse('%Y-%m-%d');
+  const sites = window.MR.site === 'Tous' ? ['Bunia', 'Butembo'] : [window.MR.site];
+  const rows = s.data.filter((r) => sites.includes(r.site)).map((r) => ({ site: r.site, d: parse(r.date), y: +r.rt, lo: +r.bas, hi: +r.haut }))
+    .filter((r) => r.d >= parse('2026-07-01'));
+  const W = el.clientWidth || 400, H = 260, m = { t: 10, r: 96, b: 26, l: 34 };
+  const x = d3.scaleUtc(d3.extent(rows, (r) => r.d), [m.l, W - m.r]);
+  const y = d3.scaleLinear([0, Math.max(2, d3.max(rows, (r) => r.hi))], [H - m.b, m.t]).nice();
+  const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('role', 'img').attr('aria-label', 'Nombre de reproduction effectif par zone d’attraction de site depuis juillet 2026');
+  svg.append('g').attr('class', 'gridl').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickSize(-(W - m.l - m.r)).tickFormat(''));
+  svg.append('g').attr('class', 'axis').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(Math.max(2, Math.floor(W / 110))).tickFormat(d3.utcFormat('%d/%m')));
+  svg.append('g').attr('class', 'axis').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(window.MR.fr.format(',.1f')));
+  svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(1)).attr('y2', y(1)).style('stroke', 'var(--cds-chart-reference)').style('stroke-dasharray', '4 3');
+  const ends = [];
+  sites.forEach((site, i) => {
+    const col = dash.colors[i];
+    const r = rows.filter((p) => p.site === site);
+    svg.append('path').datum(r).attr('d', d3.area().x((p) => x(p.d)).y0((p) => y(p.lo)).y1((p) => y(p.hi))).style('fill', col).style('opacity', 0.15);
+    svg.append('path').datum(r).attr('d', d3.line().x((p) => x(p.d)).y((p) => y(p.y))).style('fill', 'none').style('stroke', col).style('stroke-width', 2);
+    const l = r[r.length - 1]; let ly = y(l.y) + 4;
+    ends.forEach((e) => { if (Math.abs(e - ly) < 14) ly = e + 14; }); ends.push(ly);
+    svg.append('text').attr('x', x(l.d) + 6).attr('y', ly).text(`${site} ${window.MR.fr.format(',.2f')(l.y)}`).style('fill', col).style('font-size', '12px').style('font-family', 'var(--font-anthropic-sans)');
+  });
+  const tip = window.MR.tip(el);
+  svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).style('fill', 'transparent')
+    .on('pointermove', (ev) => {
+      const [px] = d3.pointer(ev); const xd = x.invert(px);
+      tip.replaceChildren();
+      const t = document.createElement('div'); t.className = 't'; t.textContent = d3.utcFormat('%d/%m/%Y')(xd); tip.appendChild(t);
+      sites.forEach((site) => {
+        const r = rows.filter((p) => p.site === site);
+        const b = r.reduce((a, c) => Math.abs(c.d - xd) < Math.abs(a.d - xd) ? c : a);
+        const p = document.createElement('div'); const f = window.MR.fr.format(',.2f');
+        p.textContent = `${site} : Rt ${f(b.y)} (IC95 ${f(b.lo)}–${f(b.hi)})`; tip.appendChild(p);
+      });
+      tip.hidden = false; window.MR.place(el, tip, ev);
+    })
+    .on('pointerleave', () => { tip.hidden = true; });
+});
+
+// Zones ORACLE
+dash.draw('oracle', (el) => {
+  const z = dash.data('zones');
+  if (z.status !== 'ok') { el.replaceChildren(); return; }
+  const fr = window.MR.fr;
+  const order = Object.keys(window.MR.oracle);
+  const rows = order.map((n) => z.data.find((r) => r.nom === n)).filter(Boolean);
+  const num = (v, f) => (v === '' || v == null || v === 'NA') ? '–' : fr.format(f)(+v);
+  el.replaceChildren(...rows.map((r) => {
+    const tr = document.createElement('tr'); tr.setAttribute('data-key', r.nom);
+    const st = window.MR.oracle[r.nom];
+    const vals = [[r.nom, ''], [window.MR.oracleTxt[r.nom], ''], [null, 'lvl'], [r.rang, 'num'], [num(r.cas_21j, ',d'), 'num'],
+      [num(r.cas_21j_prec, ',d'), 'num'], [num(r.incidence_21j_100k, ',.1f'), 'num'],
+      [(r.letalite_42j === '' || r.letalite_42j == null || r.letalite_42j === 'NA') ? '–' : fr.format('.0%')(+r.letalite_42j), 'num'],
+      [num(r.cas_cumules, ',d'), 'num']];
+    vals.forEach(([v, c]) => {
+      const td = document.createElement('td');
+      if (c === 'lvl') { const s = document.createElement('span'); s.className = 'pill ' + window.MR.lvClass[r.niveau_risque]; s.textContent = r.niveau_risque; td.appendChild(s); }
+      else { td.textContent = v; if (c) td.className = c; }
+      tr.appendChild(td);
+    });
+    return tr;
+  }));
+});
+
+// Tableau
+dash.draw('table', (el) => {
+  const z = dash.data('zones');
+  if (z.status !== 'ok') { el.replaceChildren(); return; }
+  const fr = window.MR.fr;
+  const rows = z.data.filter((r) => window.MR.inSite(r));
+  const num = (v, f) => (v === '' || v == null || v === 'NA') ? '–' : fr.format(f)(+v);
+  el.replaceChildren(...rows.map((r) => {
+    const tr = document.createElement('tr'); tr.setAttribute('data-key', r.nom);
+    const cells = [
+      [r.rang, 'num'], [r.nom, ''], [r.province, ''], [null, 'lvl'], [num(100 * (+r.probabilite), ',.0f'), 'num'],
+      [num(r.cas_21j, ',d'), 'num'], [num(r.cas_21j_prec, ',d'), 'num'], [num(r.incidence_21j_100k, ',.1f'), 'num'],
+      [(r.letalite_42j === '' || r.letalite_42j == null || r.letalite_42j === 'NA') ? '–' : fr.format('.0%')(+r.letalite_42j), 'num'],
+      [num(r.cas_cumules, ',d'), 'num'], [r.niveau_securite, ''], [num(r.temps_Bunia_min, ',d'), 'num'], [num(r.temps_Butembo_min, ',d'), 'num']];
+    cells.forEach(([v, c]) => {
+      const td = document.createElement('td');
+      if (c === 'lvl') { const s = document.createElement('span'); s.className = 'pill ' + window.MR.lvClass[r.niveau_risque]; s.textContent = r.niveau_risque; td.appendChild(s); }
+      else { td.textContent = v; if (c) td.className = c; }
+      if (v === r.nom && window.MR.oracle[r.nom]) { const g = document.createElement('span'); g.className = 'tag' + (window.MR.oracle[r.nom] === 'prep' ? ' prep' : ''); g.textContent = window.MR.oracle[r.nom] === 'prep' ? 'ORACLE – prép.' : 'ORACLE'; td.appendChild(g); }
+      tr.appendChild(td);
+    });
+    return tr;
+  }));
+});
+
+dash.draw('nAlert', (el) => { const z = dash.data('zones'); el.textContent = z.status === 'ok' ? String(z.data.filter((r) => r.alerte_precoce === 'Oui').length) : '—'; });
+function MRrows(el, rows, cols) {
+  const fr = window.MR.fr;
+  el.replaceChildren(...rows.map((r) => { const tr = document.createElement('tr'); tr.setAttribute('data-key', r.nom);
+    cols.forEach(([v, c]) => { const td = document.createElement('td'); const val = typeof v === 'function' ? v(r) : v;
+      if (c === 'sec') { const s = document.createElement('span'); s.className = 'pill ' + ({ 'Élevé': 'lv-te', 'Moyen': 'lv-e', 'Faible': 'lv-m' }[r.niveau_securite] || 'lv-f'); s.textContent = r.niveau_securite; td.appendChild(s); }
+      else { td.textContent = val; if (c) td.className = c; }
+      if (c === 'nom' && window.MR.oracle[r.nom]) { const g = document.createElement('span'); g.className = 'tag' + (window.MR.oracle[r.nom] === 'prep' ? ' prep' : ''); g.textContent = 'ORACLE'; td.appendChild(g); }
+      tr.appendChild(td); }); return tr; }));
+}
+dash.draw('surveiller', (el) => { const z = dash.data('zones'); if (z.status !== 'ok') { el.replaceChildren(); return; }
+  const fr = window.MR.fr; const n = (v, f) => (v === '' || v == null) ? '–' : fr.format(f)(+v);
+  const rows = z.data.filter((r) => r.alerte_precoce === 'Oui' && window.MR.inSite(r)).sort((a, b) => a.rang_pression - b.rang_pression);
+  MRrows(el, rows, [[(r) => r.rang_pression, 'num'], [(r) => r.nom, 'nom'], [(r) => r.statut, ''], [(r) => n(r.pression_importation, ',.0f'), 'num'], [null, 'sec'], [(r) => n(r.temps_Bunia_min, ',d'), 'num'], [(r) => n(r.temps_Butembo_min, ',d'), 'num']]);
+});
+dash.draw('renforcer', (el) => { const z = dash.data('zones'); if (z.status !== 'ok') { el.replaceChildren(); return; }
+  const fr = window.MR.fr; const n = (v, f) => (v === '' || v == null) ? '–' : fr.format(f)(+v);
+  const rows = z.data.filter((r) => r.rang_actif !== '' && r.rang_actif != null && window.MR.inSite(r)).sort((a, b) => a.rang_actif - b.rang_actif).slice(0, 12);
+  MRrows(el, rows, [[(r) => r.rang_actif, 'num'], [(r) => r.nom, 'nom'], [(r) => n(r.cas_21j, ',d'), 'num'], [(r) => n(r.cas_21j_prec, ',d'), 'num'], [(r) => n(r.incidence_21j_100k, ',.1f'), 'num'], [null, 'sec']]);
+});
+document.querySelectorAll('.mr [data-couche]').forEach((b) => b.addEventListener('click', () => {
+  window.MR.couche = b.getAttribute('data-couche');
+  document.querySelectorAll('.mr [data-couche]').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+  ['risque', 'securite', 'alerte'].forEach((k) => { const l = document.getElementById('leg-' + k); if (l) l.hidden = k !== window.MR.couche; });
+  dash.draw('map');
+}));
+</script>
