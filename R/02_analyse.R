@@ -100,7 +100,7 @@ ind <- hz |> st_drop_geometry() |>
          letalite_42j = ifelse(cas_42j >= 10, deces_42j / cas_42j, NA),
          jours_depuis_dernier_cas = as.numeric(FIN - dernier_cas),
          fs_10k = 1e4 * formations_sanitaires / population,
-         densite = population / (as.numeric(st_area(hz)[match(nom, hz$nom)]) / 1e6))
+         densite = population / (as.numeric(st_area(st_transform(hz, 32735))[match(nom, hz$nom)]) / 1e6))
 
 a21 <- fen(cas_j, FIN - 21, FIN)
 ind$pression_importation <- sapply(ind$nom, function(z) {
