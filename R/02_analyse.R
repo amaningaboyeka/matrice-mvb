@@ -1,8 +1,8 @@
 # =============================================================================
 # 02 — Analyse : matrice de risque, classements, dynamique, projections
 # Matrice de risque MVB — appui à la surveillance ORACLE (Bunia, Butembo)
-# Dr Gaylord Amani Ngaboyeka, co-investigateur et responsable de la qualité des
-# données, projet ORACLE BDBV ; ERSP/UCB
+# Dr Gaylord Amani Ngaboyeka, co-investigateur et biostatisticien de l'essai clinique
+# ORACLE BDBV ; ERSP/UCB
 #
 # Version 2 (après validation rétrospective, juin–octobre 2026) :
 #  - probabilité et impact restent deux dimensions séparées (le score mélangé
@@ -47,7 +47,7 @@ FIN <- max(cas$date)
 grille <- seq(as.Date("2026-05-14"), FIN, by = "day")
 quot <- function(d) d |> group_by(nom) |> arrange(date, .by_group = TRUE) |>
   mutate(v = rev(cummin(rev(v)))) |>
-  group_modify(~ { x <- approx(as.numeric(.x$date), .x$v, xout = as.numeric(grille), rule = 2)$y
+  group_modify(~ { x <- if (nrow(.x) >= 2) approx(as.numeric(.x$date), .x$v, xout = as.numeric(grille), rule = 2)$y else rep(.x$v[1], length(grille))
                    x[grille < min(.x$date)] <- 0; tibble(date = grille, cum = x) }) |> ungroup()
 cas_j <- quot(cas); dec_j <- quot(dec)
 val_a <- function(dj, d) dj |> filter(date == d) |> select(nom, cum)
