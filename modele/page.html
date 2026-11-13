@@ -509,28 +509,34 @@ dash.draw('oracleProj', (el) => {
   sel.forEach((g) => { g.box = document.createElement('div'); g.box.style.position = 'relative'; if (g.z === 'Ensemble') g.box.style.gridColumn = '1 / -1'; el.appendChild(g.box); });
   sel.forEach((g) => {
     const z = g.z, obs = g.obs, pr = g.pr, box = g.box, last = obs[obs.length - 1];
-    const ens = z === 'Ensemble', st = window.MR.oracle[z], col = ens ? dash.colors[3] : st === 'prep' ? dash.colors[1] : dash.colors[0];
-    const yM = ens ? d3.max([...obs.map((r) => r.y), ...pr.map((r) => r.h80)]) * 1.08 : ymax;
-    const t = document.createElement('div'); t.className = 'sub'; const b = document.createElement('b'); b.textContent = ens ? `Ensemble des ${sel.length - 1} zones ORACLE` : z; t.appendChild(b);
-    t.appendChild(document.createTextNode(` — ${ens ? 'somme des zones ci-dessous' : (window.MR.oracleLabel[st] || '')} · 4 semaines : ${f(pr[0].tot)} cas (IP80 ${f(pr[0].tb)}–${f(pr[0].th)})`)); box.appendChild(t);
-    const W = box.clientWidth || 260, H = ens ? 210 : 170, m = { t: 8, r: 8, b: 22, l: 30 };
+    const ens = z === 'Ensemble', st = window.MR.oracle[z], pal = ['#2563a8', '#0f766e', '#c2410c', '#7c3aed', '#6b7280'], zs = sel.filter((q) => q.z !== 'Ensemble'), col = ens ? 'var(--cds-text-secondary)' : pal[zs.findIndex((q) => q.z === z) % pal.length];
+    const yM = ens ? d3.max(zs, (q) => d3.max([...q.obs, ...q.pr], (r) => r.y)) * 1.08 : ymax;
+    const t = document.createElement('div'); t.className = 'sub'; const b = document.createElement('b'); b.textContent = ens ? `Les ${zs.length} zones ORACLE sur un même graphique` : z; t.appendChild(b);
+    t.appendChild(document.createTextNode(` — ${ens ? 'une courbe par zone, projection médiane en pointillés ; total des zones' : (window.MR.oracleLabel[st] || '')} · 4 semaines : ${f(pr[0].tot)} cas (IP80 ${f(pr[0].tb)}–${f(pr[0].th)})`)); box.appendChild(t);
+    const W = box.clientWidth || 260, H = ens ? 240 : 170, m = { t: 8, r: ens ? 78 : 8, b: 22, l: 30 };
     const x = d3.scaleUtc([obs[0].d, pr[pr.length - 1].d], [m.l, W - m.r]), y = d3.scaleLinear([0, Math.max(5, yM)], [H - m.b, m.t]).nice();
     const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', `Cas hebdomadaires observés et projetés, ${ens ? 'ensemble des zones ORACLE' : 'zone de santé de ' + z}`);
     svg.append('g').attr('class', 'gridl').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickSize(-(W - m.l - m.r)).tickFormat(''));
     svg.append('g').attr('class', 'axis').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(ens ? 8 : 4).tickFormat(d3.utcFormat('%d/%m')));
     svg.append('g').attr('class', 'axis').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4));
     svg.append('line').attr('x1', x(last.d)).attr('x2', x(last.d)).attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-reference)').style('stroke-dasharray', '3 3');
+    if (ens) { const lab = []; zs.map((q, i) => ({ q, c: pal[i % pal.length] })).sort((a, b) => b.q.pr[b.q.pr.length - 1].y - a.q.pr[a.q.pr.length - 1].y).forEach(({ q, c }) => { const lq = q.obs[q.obs.length - 1], e = q.pr[q.pr.length - 1];
+      svg.append('path').datum(q.obs).attr('d', d3.line().x((p) => x(p.d)).y((p) => y(p.y))).style('fill', 'none').style('stroke', c).style('stroke-width', 2);
+      svg.append('path').datum([lq, ...q.pr]).attr('d', d3.line().x((p) => x(p.d)).y((p) => y(p.y))).style('fill', 'none').style('stroke', c).style('stroke-width', 2).style('stroke-dasharray', '5 4');
+      let ly = y(e.y) + 4; lab.forEach((v) => { if (ly - v < 13) ly = v + 13; }); lab.push(ly);
+      svg.append('text').attr('x', x(e.d) + 6).attr('y', ly).text(q.z).style('fill', c).style('font-size', '12px').style('font-family', 'var(--font-anthropic-sans)'); }); }
     const cl = (v) => Math.min(v, y.domain()[1]);
     const band = (lo, hi, op) => svg.append('path').datum([{ d: last.d, lo: last.y, hi: last.y }, ...pr.map((r) => ({ d: r.d, lo: r[lo], hi: cl(r[hi]) }))]).attr('d', d3.area().x((p) => x(p.d)).y0((p) => y(p.lo)).y1((p) => y(p.hi))).style('fill', col).style('opacity', op);
-    band('b95', 'h95', 0.10); band('b80', 'h80', 0.18);
-    svg.append('path').datum(obs).attr('d', d3.line().x((p) => x(p.d)).y((p) => y(p.y))).style('fill', 'none').style('stroke', col).style('stroke-width', 2);
-    svg.append('path').datum([last, ...pr]).attr('d', d3.line().x((p) => x(p.d)).y((p) => y(p.y))).style('fill', 'none').style('stroke', col).style('stroke-width', 2).style('stroke-dasharray', '5 4');
-    svg.append('g').selectAll('circle').data(obs).join('circle').attr('cx', (p) => x(p.d)).attr('cy', (p) => y(p.y)).attr('r', 2.2).style('fill', col);
+    if (!ens) { band('b95', 'h95', 0.10); band('b80', 'h80', 0.18); }
+    if (!ens) svg.append('path').datum(obs).attr('d', d3.line().x((p) => x(p.d)).y((p) => y(p.y))).style('fill', 'none').style('stroke', col).style('stroke-width', 2);
+    if (!ens) svg.append('path').datum([last, ...pr]).attr('d', d3.line().x((p) => x(p.d)).y((p) => y(p.y))).style('fill', 'none').style('stroke', col).style('stroke-width', 2).style('stroke-dasharray', '5 4');
+    if (!ens) svg.append('g').selectAll('circle').data(obs).join('circle').attr('cx', (p) => x(p.d)).attr('cy', (p) => y(p.y)).attr('r', 2.2).style('fill', col);
     const tip = window.MR.tip(box); const pts = [...obs, ...pr];
     svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).style('fill', 'transparent')
       .on('pointermove', (ev) => { const [px] = d3.pointer(ev); const p = pts.reduce((a, c) => Math.abs(x(c.d) - px) < Math.abs(x(a.d) - px) ? c : a);
         tip.replaceChildren(); const h = document.createElement('div'); h.className = 't'; h.textContent = `Semaine au ${d3.utcFormat('%d/%m/%Y')(p.d)}`; tip.appendChild(h);
-        const l = document.createElement('div'); l.textContent = p.type === 'Projection' ? `Projection : ${f(p.y)} cas (IP80 ${f(p.b80)}–${f(p.h80)} ; IP95 ${f(p.b95)}–${f(p.h95)})` : `Observé : ${f(p.y)} cas`; tip.appendChild(l);
+        const l = document.createElement('div'); l.textContent = p.type === 'Projection' ? `Projection : ${f(p.y)} cas (IP80 ${f(p.b80)}–${f(p.h80)} ; IP95 ${f(p.b95)}–${f(p.h95)})` : `Observé : ${f(p.y)} cas`; if (ens) l.textContent = `Total des zones : ${f(p.y)} cas${p.type === 'Projection' ? ' (projection)' : ''}`; tip.appendChild(l);
+        if (ens) zs.forEach((q) => { const r = [...q.obs, ...q.pr].find((v) => +v.d === +p.d); if (r) { const e = document.createElement('div'); e.textContent = `${q.z} : ${f(r.y)}`; tip.appendChild(e); } });
         tip.hidden = false; window.MR.place(box, tip, ev); })
       .on('pointerleave', () => { tip.hidden = true; });
   });
