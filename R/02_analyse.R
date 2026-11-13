@@ -223,6 +223,20 @@ pts <- st_coordinates(st_transform(st_point_on_surface(st_geometry(geo)), 4326))
 geo <- geo |> st_transform(4326) |> mutate(cx = round(pts[, 1], 4), cy = round(pts[, 2], 4)) |> select(nom, cx, cy)
 st_write(geo, "sortie/zones_geo_brut.geojson", delete_dsn = TRUE, quiet = TRUE, layer_options = "COORDINATE_PRECISION=4")
 
+# ---- Notifications quotidiennes (cas et décès confirmés), telles que rapportées : aucune interpolation,
+# dernier cumul rapporté reporté d'un jour à l'autre ; une révision à la baisse donne 0 ce jour-là.
+jours <- seq(FIN - 66, FIN, by = "day")
+cumul_j <- function(d, zz) { d <- d[d$nom %in% zz, ]
+  sapply(jours, function(t) { x <- d[d$date <= t, ] |> group_by(nom) |> slice_max(date, n = 1, with_ties = FALSE); sum(x$v) }) }
+mm7 <- function(x) as.numeric(stats::filter(x, rep(1 / 7, 7), sides = 1))
+dates_rapport <- unique(cas$date)
+perim <- c(list(Ensemble = unique(cas$nom)), lapply(res_sites, function(x) x$zones))
+quotidien <- bind_rows(lapply(names(perim), function(p) {
+  n_c <- pmax(diff(cumul_j(cas, perim[[p]])), 0); n_d <- pmax(diff(cumul_j(dec, perim[[p]])), 0)
+  tibble(perimetre = p, date = jours[-1], cas = n_c, deces = n_d, cas_mm7 = round(mm7(n_c), 2), deces_mm7 = round(mm7(n_d), 2),
+         rapport = ifelse(jours[-1] %in% dates_rapport, "Oui", "Non")) |> filter(date > FIN - 60) }))
+write_csv(quotidien, "sortie/quotidien.csv", na = "")
+
 meta <- list(version = VERSION, date_donnees = format(FIN), genere_le = format(Sys.time(), "%Y-%m-%d %H:%M UTC", tz = "UTC"),
              acled = statut_acled$message, acled_utilise = isTRUE(statut_acled$utilise),
              zones_terrain_renseignees = sum(ind$acces_terrain != "Non renseigné"),
