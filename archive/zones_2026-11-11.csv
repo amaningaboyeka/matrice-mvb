@@ -21,7 +21,7 @@ rang,nom,province,niveau_risque,probabilite,impact,classe_prob,classe_impact,sta
 20,Drodro,Ituri,Modéré,0.635,0.542,Moyenne,Moyen,Active,Stable,Modéré,29,Alerte confirmée (cas notifiés),16,8,8,1,0,0.5,2,,3,263.6,,Non,32,Non renseigné,Non renseigné,,,199996,3,0.82,,,,61,303,Oui,Non
 21,Lubero,Nord-Kivu,Modéré,0.628,0.53,Moyenne,Moyen,Active,Stable,Modéré,16,,45,17,28,8,16,2.1,0.53,0.25,3,213.7,,Non,23,Non renseigné,Non renseigné,,,377506,0.98,0.83,,,,323,99,Non,Oui
 22,Bambu,Ituri,Modéré,0.627,0.433,Moyenne,Moyen,Active,Stable,Modéré,24,,220,50,170,4,14,2.9,0.33,0.22,14,272.1,,Non,27,Non renseigné,Non renseigné,,,136151,3.75,0.83,,,,54,296,Oui,Non
-23,Komanda,Ituri,Modéré,0.616,0.449,Moyenne,Moyen,Active,Stable,Modéré,17,,193,119,74,2,22,0.9,0.13,0.67,17,386.3,,Non,30,Non renseigné,Non renseigné,,,219948,6.59,0.86,,,,129,134,Oui,Oui
+23,Komanda,Ituri,Modéré,0.616,0.449,Moyenne,Moyen,Active,Stable,Modéré,17,,193,119,74,2,22,0.9,0.13,0.67,17,386.3,,Non,30,Non renseigné,Non renseigné,,,219948,6.59,0.86,,,,129,134,Oui,Non
 24,Biena,Nord-Kivu,Modéré,0.615,0.375,Moyenne,Moyen,Active,Stable,Modéré,25,,28,11,17,4,5,2.9,0.83,,1,198.3,,Non,28,Non renseigné,Non renseigné,,,136159,5.88,0.84,,,,340,120,Non,Oui
 25,Fataki,Ituri,Modéré,0.603,0.633,Moyenne,Moyen,Active,Stable,Modéré,32,Alerte confirmée (cas notifiés),86,31,55,2,2,1.3,1,,1,207.1,,Non,29,Non renseigné,Non renseigné,,,158032,2.28,0.83,,,,96,338,Oui,Non
 26,Nia Nia,Ituri,Modéré,0.546,0.428,Moyenne,Moyen,Active,En baisse,Élevé,14,,346,204,142,9,32,9.8,0.3,0.9,1,46.8,,Non,19,Non renseigné,Non renseigné,,,91756,10.57,0.86,,,,438,411,Non,Non
