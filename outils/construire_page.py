@@ -35,6 +35,31 @@ meta = json.loads(lire("meta.json"))
 d3 = (RACINE / "outils" / "d3.min.js").read_text(encoding="utf-8")
 corps = (RACINE / "modele" / "page.html").read_text(encoding="utf-8")
 
+# Deux variantes : publique (par défaut, sans les zones d'intervention ORACLE) et ORACLE (VARIANTE=oracle, dossier docs/oracle)
+import csv, io
+ORACLE = os.environ.get("VARIANTE", "public") == "oracle"
+ROBOTS, PUBLIES, NL = "", {}, chr(10)
+def oter(txt, debut, fin):  # supprime le premier passage allant de `debut` à `fin` inclus
+    i = txt.find(debut)
+    if i < 0: return txt
+    return txt[:i] + txt[txt.find(fin, i) + len(fin):]
+if ORACLE:
+    DOCS = DOCS / "oracle"; (DOCS / "donnees").mkdir(parents=True, exist_ok=True)
+    ROBOTS = '<meta name="robots" content="noindex,nofollow">'
+else:
+    lignes = list(csv.DictReader(io.StringIO(donnees["zones"]))); tampon = io.StringIO()
+    ecr = csv.DictWriter(tampon, fieldnames=list(lignes[0].keys()), lineterminator=NL); ecr.writeheader()
+    for l in lignes:
+        ecr.writerow({k: ("" if k.startswith("oracle") else v) for k, v in l.items()})
+    donnees["zones"] = tampon.getvalue()
+    donnees["quotidien"] = NL.join(x for x in donnees["quotidien"].splitlines() if not x.startswith("ORACLE,")) + NL
+    donnees["projoracle"] = "zone,semaine_fin,type,cas" + NL
+    PUBLIES = {"zones_classement.csv": donnees["zones"], "quotidien.csv": donnees["quotidien"], "projections_oracle.csv": None}
+    corps = oter(corps, '  <section class="card" id="zones-oracle">', "</section>" + NL)
+    corps = oter(corps, '      <button type="button" data-site="ORACLE"', NL)
+    corps = oter(corps, '      <div class="legend"><span><i class="or-a"></i>', NL)
+    corps = corps.replace('<a href="#zones-oracle">Zones ORACLE</a>', "").replace(" Contour plein : zone ORACLE en cours ; pointillés : en préparation.", "")
+
 THEME = """:root{--font-anthropic-sans:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;--font-anthropic-serif:Georgia,"Times New Roman",serif;
 --color-fg:#1f2328;--color-fg-muted:#5c6470;--color-bg:#fff;--color-panel:#f7f7f5;--color-border-line:#e1e3e6;--color-ok:#2e7d32;--color-warn:#e8a33d;--color-bad:#c0392b;
 --cds-font-size-caption:12.5px;--cds-font-size-body:15px;--cds-font-size-heading:17px;--cds-font-size-title:26px;--cds-font-weight-medium:600;
@@ -55,7 +80,8 @@ window.__drawAll=function(){Object.keys(draws).forEach(n=>dash.draw(n));};let t;
     json.dumps(donnees, ensure_ascii=False), json.dumps(geo, separators=(",", ":")), json.dumps(meta, ensure_ascii=False))
 
 titre = f"Matrice de risque MVB – appui à la surveillance ORACLE, Bunia & Butembo (données au {meta['date_donnees']})"
-html = f"""<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+if ORACLE: titre += " – version ORACLE"
+html = f"""<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">{ROBOTS}<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{titre}</title><meta name="author" content="Dr Gaylord Amani Ngaboyeka"><meta name="description" content="Matrice de risque et classement des zones de santé, maladie à virus Bundibugyo, Ituri et Nord-Kivu (RDC). Mise à jour quotidienne.">
 <style>{THEME}</style><script>{d3}</script>{SHIM}</head><body><div class="page">
 {corps}
@@ -63,7 +89,8 @@ html = f"""<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name
 </div><script>window.__drawAll();</script></body></html>"""
 (DOCS / "index.html").write_text(html, encoding="utf-8")
 for p in ["zones_classement.csv", "series_hebdo_projections.csv", "rt_par_site.csv", "resume_sites.csv", "quotidien.csv", "projections_oracle.csv", "meta.json"]:
-    shutil.copy(SORTIE / p, DOCS / "donnees" / p)
+    if p in PUBLIES and PUBLIES[p] is None: continue
+    (DOCS / "donnees" / p).write_text(PUBLIES.get(p) or lire(p), encoding="utf-8")
 (DOCS / ".nojekyll").write_text("")
 print("Page écrite :", DOCS / "index.html")
 
