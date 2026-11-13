@@ -72,6 +72,7 @@
       <button type="button" data-site="Tous" aria-pressed="true">Toutes les zones</button>
       <button type="button" data-site="Bunia" aria-pressed="false">Zone d’attraction de Bunia</button>
       <button type="button" data-site="Butembo" aria-pressed="false">Zone d’attraction de Butembo</button>
+      <button type="button" data-site="ORACLE" aria-pressed="false">Zones ORACLE</button>
     </div>
   </div>
 
@@ -254,6 +255,7 @@ window.MR.lvClass = { 'Très élevé': 'lv-te', 'Élevé': 'lv-e', 'Modéré': '
 window.MR.lvColor = { 'Très élevé': 'var(--color-bad)', 'Élevé': 'var(--color-warn)', 'Modéré': 'color-mix(in srgb, var(--color-warn) 35%, var(--color-panel))', 'Faible': 'var(--cds-chart-muted)' };
 window.MR.inSite = function (z) {
   const s = window.MR.site;
+  if (s === 'ORACLE') return !!z.oracle_statut;
   return s === 'Tous' || z['attraction_' + s] === 'Oui';
 };
 window.MR.drawAll = function () { ['map', 'matrix', 'trend', 'rt', 'table', 'surveiller', 'renforcer', 'oracle', 'changements', 'quotKpi', 'quotCas', 'quotDeces', 'oracleProj'].forEach((n) => dash.draw(n)); };
@@ -404,7 +406,7 @@ dash.draw('trend', (el) => {
   if (s.status !== 'ok') { el.textContent = s.status === 'error' ? 'Échec du chargement' : '—'; return; }
   el.textContent = '';
   const parse = d3.utcParse('%Y-%m-%d');
-  const sites = window.MR.site === 'Tous' ? ['Bunia', 'Butembo'] : [window.MR.site];
+  const sites = (window.MR.site === 'Tous' || window.MR.site === 'ORACLE') ? ['Bunia', 'Butembo'] : [window.MR.site];
   const rows = s.data.filter((r) => sites.includes(r.site)).map((r) => ({ ...r, d: parse(r.semaine_fin), y: +r.cas,
     a80: r.pi80_bas === '' || r.pi80_bas == null ? null : +r.pi80_bas, b80: r.pi80_haut === '' || r.pi80_haut == null ? null : +r.pi80_haut,
     a95: r.pi95_bas === '' || r.pi95_bas == null ? null : +r.pi95_bas, b95: r.pi95_haut === '' || r.pi95_haut == null ? null : +r.pi95_haut }));
@@ -462,7 +464,7 @@ dash.draw('quotKpi', (el) => {
   const r = q.rows, n = r.length, f = window.MR.fr.format(','), sum = (a, k) => d3.sum(a, (x) => x[k]);
   const last = r[n - 1], w1 = r.slice(n - 7), w0 = r.slice(n - 14, n - 7);
   const evo = (k) => { const a = sum(w1, k), b = sum(w0, k); return b > 0 ? `${a >= b ? '+' : '−'}${window.MR.fr.format(',.0f')(Math.abs(100 * (a - b) / b))} % par rapport aux 7 jours précédents (${f(b)})` : `7 jours précédents : ${f(b)}`; };
-  const lib = q.p === 'Ensemble' ? 'toutes les zones rapportées' : `zone d’attraction de ${q.p}`;
+  const lib = q.p === 'Ensemble' ? 'toutes les zones rapportées' : q.p === 'ORACLE' ? 'zones d’intervention ORACLE' : `zone d’attraction de ${q.p}`;
   [[f(last.cas), `cas notifiés au dernier rapport (${d3.utcFormat('%d/%m')(last.d)})`, lib],
    [f(last.deces), `décès notifiés au dernier rapport (${d3.utcFormat('%d/%m')(last.d)})`, lib],
    [f(sum(w1, 'cas')), 'cas notifiés, 7 derniers jours', evo('cas')],
@@ -503,18 +505,19 @@ dash.draw('oracleProj', (el) => {
   const all = s.data.map((r) => ({ zone: r.zone, d: parse(r.semaine_fin), type: r.type, y: +r.cas, b80: +r.pi80_bas, h80: +r.pi80_haut, b95: +r.pi95_bas, h95: +r.pi95_haut, tot: +r.total_4sem, tb: +r.total_bas80, th: +r.total_haut80 }));
   const zones = Array.from(new Set(all.map((r) => r.zone)));
   const sel = zones.map((z) => { const rows = all.filter((r) => r.zone === z); return { z, obs: rows.filter((r) => r.type === 'Observé').slice(-12), pr: rows.filter((r) => r.type === 'Projection') }; }).filter((g) => g.obs.length && g.pr.length);
-  const ymax = d3.max(sel, (g) => Math.max(d3.max(g.obs, (r) => r.y), d3.max(g.pr, (r) => r.h80))) * 1.08;
-  sel.forEach((g) => { g.box = document.createElement('div'); g.box.style.position = 'relative'; el.appendChild(g.box); });
+  const ymax = d3.max(sel.filter((g) => g.z !== 'Ensemble'), (g) => Math.max(d3.max(g.obs, (r) => r.y), d3.max(g.pr, (r) => r.h80))) * 1.08;
+  sel.forEach((g) => { g.box = document.createElement('div'); g.box.style.position = 'relative'; if (g.z === 'Ensemble') g.box.style.gridColumn = '1 / -1'; el.appendChild(g.box); });
   sel.forEach((g) => {
     const z = g.z, obs = g.obs, pr = g.pr, box = g.box, last = obs[obs.length - 1];
-    const st = window.MR.oracle[z], col = st === 'prep' ? dash.colors[1] : dash.colors[0];
-    const t = document.createElement('div'); t.className = 'sub'; const b = document.createElement('b'); b.textContent = z; t.appendChild(b);
-    t.appendChild(document.createTextNode(` — ${window.MR.oracleLabel[st] || ''} · 4 semaines : ${f(pr[0].tot)} cas (IP80 ${f(pr[0].tb)}–${f(pr[0].th)})`)); box.appendChild(t);
-    const W = box.clientWidth || 260, H = 170, m = { t: 8, r: 8, b: 22, l: 30 };
-    const x = d3.scaleUtc([obs[0].d, pr[pr.length - 1].d], [m.l, W - m.r]), y = d3.scaleLinear([0, Math.max(5, ymax)], [H - m.b, m.t]).nice();
-    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', `Cas hebdomadaires observés et projetés, zone de santé de ${z}`);
+    const ens = z === 'Ensemble', st = window.MR.oracle[z], col = ens ? dash.colors[3] : st === 'prep' ? dash.colors[1] : dash.colors[0];
+    const yM = ens ? d3.max([...obs.map((r) => r.y), ...pr.map((r) => r.h80)]) * 1.08 : ymax;
+    const t = document.createElement('div'); t.className = 'sub'; const b = document.createElement('b'); b.textContent = ens ? `Ensemble des ${sel.length - 1} zones ORACLE` : z; t.appendChild(b);
+    t.appendChild(document.createTextNode(` — ${ens ? 'somme des zones ci-dessous' : (window.MR.oracleLabel[st] || '')} · 4 semaines : ${f(pr[0].tot)} cas (IP80 ${f(pr[0].tb)}–${f(pr[0].th)})`)); box.appendChild(t);
+    const W = box.clientWidth || 260, H = ens ? 210 : 170, m = { t: 8, r: 8, b: 22, l: 30 };
+    const x = d3.scaleUtc([obs[0].d, pr[pr.length - 1].d], [m.l, W - m.r]), y = d3.scaleLinear([0, Math.max(5, yM)], [H - m.b, m.t]).nice();
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', `Cas hebdomadaires observés et projetés, ${ens ? 'ensemble des zones ORACLE' : 'zone de santé de ' + z}`);
     svg.append('g').attr('class', 'gridl').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickSize(-(W - m.l - m.r)).tickFormat(''));
-    svg.append('g').attr('class', 'axis').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(4).tickFormat(d3.utcFormat('%d/%m')));
+    svg.append('g').attr('class', 'axis').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(ens ? 8 : 4).tickFormat(d3.utcFormat('%d/%m')));
     svg.append('g').attr('class', 'axis').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4));
     svg.append('line').attr('x1', x(last.d)).attr('x2', x(last.d)).attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-reference)').style('stroke-dasharray', '3 3');
     const cl = (v) => Math.min(v, y.domain()[1]);
@@ -539,7 +542,7 @@ dash.draw('rt', (el) => {
   if (s.status !== 'ok') { el.textContent = s.status === 'error' ? 'Échec du chargement' : '—'; return; }
   el.textContent = '';
   const parse = d3.utcParse('%Y-%m-%d');
-  const sites = window.MR.site === 'Tous' ? ['Bunia', 'Butembo'] : [window.MR.site];
+  const sites = (window.MR.site === 'Tous' || window.MR.site === 'ORACLE') ? ['Bunia', 'Butembo'] : [window.MR.site];
   const rows = s.data.filter((r) => sites.includes(r.site)).map((r) => ({ site: r.site, d: parse(r.date), y: +r.rt, lo: +r.bas, hi: +r.haut }))
     .filter((r) => r.d >= parse('2026-07-01'));
   const W = el.clientWidth || 400, H = 260, m = { t: 10, r: 96, b: 26, l: 34 };
