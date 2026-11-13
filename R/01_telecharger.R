@@ -21,15 +21,16 @@ fichiers <- c(
   "data/worldpop/processed/worldpop__pop_count__static.csv" = "worldpop__pop_count__static.csv",
   "data/grid3_healthsites/processed/grid3_healthsites__healthsite_count__static.csv" = "grid3_healthsites__healthsite_count__static.csv",
   "data/ccvi/processed/ccvi__socioeconomic_deprivation__static.csv" = "ccvi__socioeconomic_deprivation__static.csv",
-  "data/osrm/processed/osrm__travel_time__static.matrix.csv" = "osrm__travel_time__static.matrix.csv"
+  "data/osrm/processed/osrm__travel_time__static.matrix.csv" = "osrm__travel_time__static.matrix.csv",
+  "data/flowminder/processed/flowminder__outflow__static.matrix.csv" = "flowminder__outflow__static.matrix.csv"
 )
 for (src in names(fichiers)) {
   dest <- file.path("donnees", fichiers[[src]])
-  statiques <- grepl("hz.geojson|worldpop|grid3|ccvi|osrm|aliases", dest)
+  statiques <- grepl("hz.geojson|worldpop|grid3|ccvi|osrm|aliases|flowminder", dest)
   if (statiques && file.exists(dest) && file.size(dest) > 0) next   # couches statiques : une seule fois
   ok <- tryCatch({ download.file(file.path(BASE, src), dest, quiet = TRUE, mode = "wb"); TRUE },
                  error = function(e) { message("Échec : ", src, " — ", conditionMessage(e)); FALSE })
-  if (!ok && !file.exists(dest)) stop("Donnée indispensable manquante : ", src)
+  if (!ok && !file.exists(dest) && !grepl("flowminder", dest)) stop("Donnée indispensable manquante : ", src)
 }
 message("Données INSP/INRB-UMIE à jour.")
 
