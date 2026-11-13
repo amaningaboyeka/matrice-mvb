@@ -30,7 +30,7 @@ for f in geo["features"]:
     f["properties"] = {k: f["properties"][k] for k in ("nom", "cx", "cy")}
 
 donnees = {k: lire(v) for k, v in {"zones": "zones_classement.csv", "series": "series_hebdo_projections.csv",
-                                    "rt": "rt_par_site.csv", "sites": "resume_sites.csv"}.items()}
+                                    "rt": "rt_par_site.csv", "sites": "resume_sites.csv", "quotidien": "quotidien.csv"}.items()}
 meta = json.loads(lire("meta.json"))
 d3 = (RACINE / "outils" / "d3.min.js").read_text(encoding="utf-8")
 corps = (RACINE / "modele" / "page.html").read_text(encoding="utf-8")
@@ -62,7 +62,7 @@ html = f"""<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name
 <div class="foot">© 2026 Dr Gaylord Amani Ngaboyeka (ERSP/UCB ; projet ORACLE BDBV) — amani.ngaboyeka@ucbukavu.ac.cd · Page générée automatiquement le {meta['genere_le']} à partir des rapports de situation de l’INSP (transcription INRB-UMIE), WorldPop, GRID3, OSRM{', ACLED' if meta.get('acled_utilise') else ''} et des données de terrain ORACLE.</div>
 </div><script>window.__drawAll();</script></body></html>"""
 (DOCS / "index.html").write_text(html, encoding="utf-8")
-for p in ["zones_classement.csv", "series_hebdo_projections.csv", "rt_par_site.csv", "resume_sites.csv", "meta.json"]:
+for p in ["zones_classement.csv", "series_hebdo_projections.csv", "rt_par_site.csv", "resume_sites.csv", "quotidien.csv", "meta.json"]:
     shutil.copy(SORTIE / p, DOCS / "donnees" / p)
 (DOCS / ".nojekyll").write_text("")
 print("Page écrite :", DOCS / "index.html")
