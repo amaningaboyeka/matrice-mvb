@@ -61,6 +61,7 @@
     <p class="sub">Appui à la surveillance du projet ORACLE BDBV — sites de Bunia et de Butembo · données au <span data-draw="kv" data-source="sites" data-field="date_donnees" data-row="0">—</span> · Version <span class="meta" data-meta="version"></span> · mise à jour automatique le <span class="meta" data-meta="genere_le"></span></p>
     <p class="sub">Préparé par Dr Gaylord Amani Ngaboyeka, MD, MPH, PhD — co-investigateur et biostatisticien de l'essai clinique ORACLE BDBV ; ERSP/UCB</p>
   </header>
+  <nav class="sub" id="sommaire" style="display:flex;flex-wrap:wrap;gap:4px 16px;margin:6px 0 12px"><b>Aller à :</b><a href="#quotidien">Cas et décès par jour</a><a href="#changements">Changements en 7 jours</a><a href="#sites">Sites</a><a href="#carte-et-matrice">Carte et matrice</a><a href="#dynamique">Projections et Rt</a><a href="#listes">Zones à surveiller</a><a href="#zones-oracle">Zones ORACLE</a><a href="#classement">Classement</a><a href="#methode">Méthode</a></nav>
 
   <div class="demo" id="statut"><b>Objet.</b> Classer les zones de santé de l’Ituri et du Nord-Kivu selon le risque de transmission de la maladie à virus Bundibugyo, suivre la dynamique autour des sites ORACLE de Bunia et de Butembo et projeter les cas des 4 prochaines semaines, pour orienter la surveillance et la planification. <b>Sources</b> : rapports de situation de l’INSP (transcription INRB-UMIE), WorldPop, GRID3, OSRM, ACLED et avis des équipes de terrain ORACLE. Mise à jour automatique chaque jour. <span class="meta" data-meta="acled"></span> Zones renseignées par le terrain : <span class="meta" data-meta="zones_terrain_renseignees"></span>/70.</div>
 
@@ -148,16 +149,16 @@
   <section class="grid2" id="listes">
     <div class="card" id="surveiller">
       <h2>Zones à surveiller — alerte précoce</h2>
-      <p class="sub">Zones sans cas depuis 21 jours, classées par pression d’importation (cas récents des zones voisines pondérés par le temps de route). Alerte = quintile supérieur. Validation juin–octobre 2026 : AUC 0,76 ; une zone en alerte a 2,3 fois plus de risque d’être touchée dans les 21 jours.</p>
+      <p class="sub">Zones sans cas depuis 21 jours, avec deux classements : pression d’importation par la route (cas récents des zones voisines pondérés par le temps de route ; alerte = quintile supérieur) et pression de mobilité téléphonique (cas récents pondérés par les flux Flowminder ; les 10 premières sont ajoutées à la liste). Évaluation juin–octobre 2026 sur les versions de données de l’époque : en Ituri et Nord-Kivu, AUC 0,74 (IC95 0,62–0,88) pour la route, et une zone en alerte est touchée 2,3 fois plus souvent dans les 21 jours (17,6 % contre 7,8 %) ; dans les huit provinces, la mobilité classe mieux la tête de liste (AUC 0,84 contre 0,74 pour la proximité routière) mais ne classe pas les zones sans flux enregistré (« – »). Performance non établie en fin d’épidémie.</p>
       <div class="tw"><table data-source="zones" data-row-key="nom"><thead><tr>
         <th data-field="rang_pression" class="num">Rang</th><th data-field="nom">Zone de santé</th>
-        <th data-field="statut">Statut</th><th data-field="pression_importation" class="num">Pression</th><th data-field="niveau_securite">Sécurité</th>
+        <th data-field="statut">Statut</th><th data-field="pression_importation" class="num">Pression (route)</th><th data-field="rang_mobilite" class="num">Rang mobilité</th><th data-field="niveau_securite">Sécurité</th>
         <th data-field="temps_Bunia_min" class="num">→ Bunia (min)</th><th data-field="temps_Butembo_min" class="num">→ Butembo (min)</th>
       </tr></thead><tbody data-draw="surveiller"></tbody></table></div>
     </div>
     <div class="card" id="renforcer">
       <h2>Zones actives à renforcer</h2>
-      <p class="sub">Zones ayant notifié des cas dans les 21 derniers jours, classées par nombre de cas (meilleur prédicteur de l’intensité à venir : Spearman 0,90). Les 12 premières sont affichées.</p>
+      <p class="sub">Zones ayant notifié des cas dans les 21 derniers jours, classées par nombre de cas (meilleur prédicteur de l’intensité à venir : Spearman 0,89). Les 12 premières sont affichées.</p>
       <div class="tw"><table data-source="zones" data-row-key="nom"><thead><tr>
         <th data-field="rang_actif" class="num">Rang</th><th data-field="nom">Zone de santé</th><th data-field="cas_21j" class="num">Cas 21 j</th>
         <th data-field="cas_21j_prec" class="num">21 j préc.</th><th data-field="incidence_21j_100k" class="num">Incid./100 000</th><th data-field="niveau_securite">Sécurité</th>
@@ -227,8 +228,8 @@
       <li><b>Matrice</b> : la <b>probabilité</b> est classée par seuils absolus, stables dans le temps : élevée si ≥ 20 cas confirmés ou ≥ 10 cas pour 100 000 habitants en 21 jours ; moyenne si au moins un cas en 21 jours ou zone en alerte précoce ; faible sinon. L’<b>impact</b> est classé Faible / Moyen / Élevé par tiers (seuils 1/3 et 2/3). Produit 9 = très élevé ; 6 = élevé ; 3–4 = modéré ; 1–2 = faible. Seuils proposés, à valider avec l’équipe du projet.</li>
       <li><b>Évolution sur 7 jours</b> : la matrice est recalculée sur les données connues 7 jours plus tôt et comparée à celle du jour. Une copie du classement est archivée chaque jour (dossier <i>archive</i> du dépôt) pour l’évaluation prospective.</li>
       <li><b>Survivants estimés</b> : cas confirmés cumulés moins décès confirmés ; cette estimation inclut les cas encore en cours de soins et sert à repérer les zones à fort potentiel de suivi.</li>
-      <li><b>Validation rétrospective</b> (20 dates hebdomadaires, 7 juin–18 octobre 2026, données disponibles à chaque date) : la pression d’importation prédit l’apparition de cas dans une zone indemne à 21 jours avec une AUC de 0,76 (IC95 0,63–0,89) ; les cas récents prédisent l’intensité (Spearman 0,90). Un score mélangeant probabilité et vulnérabilité prédisait moins bien (AUC 0,58) : d’où les deux listes séparées.</li>
-      <li><b>Projection</b> : régression quasi-Poisson log-linéaire sur 6 semaines, prolongée de 4 semaines avec une marche aléatoire sur le taux de croissance hebdomadaire. Couverture rétrospective : 80 % pour l’intervalle à 80 %, 93 % pour l’intervalle à 95 %.</li>
+      <li><b>Validation rétrospective</b> (20 dates hebdomadaires, 7 juin–18 octobre 2026, données disponibles à chaque date) : en Ituri et Nord-Kivu, la pression d’importation par la route classe les zones indemnes qui notifient un premier cas dans les 21 jours avec une AUC de 0,74 (IC95 0,62–0,88) ; dans les huit provinces touchées, la pression de mobilité téléphonique atteint 0,84 (0,77–0,90) contre 0,74 pour la proximité routière, mais ne classe pas les zones sans flux enregistré. Les cas récents prédisent l’intensité (Spearman 0,89). Le score de vulnérabilité ne discrimine pas (AUC 0,46) : d’où les dimensions séparées. En septembre–octobre, avec peu de nouvelles zones touchées, la performance n’est pas établie. Ces chiffres décrivent le classement de premières notifications, pas l’effet d’une préparation.</li>
+      <li><b>Projection</b> : régression quasi-Poisson log-linéaire sur 6 semaines, prolongée de 4 semaines avec une marche aléatoire sur le taux de croissance hebdomadaire. Couverture rétrospective sur les versions de données de l’époque : 87 % pour l’intervalle à 80 % et 100 % pour l’intervalle à 95 % (intervalles un peu larges) ; erreur relative médiane de 33 à 44 % à 4 semaines.</li>
       <li><b>Rt</b> : EpiEstim, fenêtres de 14 jours, intervalle sériel d’Ebola (moyenne 15,3 j, écart-type 9,3 j ; WHO Ebola Response Team, 2014), calculé sur la date de notification : indicateur de tendance.</li>
       <li><b>Limites</b> : données de notification (retards, cas non attribués), temps de route théoriques, couverture ACLED variable selon le niveau d’accès du compte, pondérations à valider avec l’équipe du projet. Complète, sans la remplacer, l’analyse de la sous-commission surveillance.</li>
       <li><b>Code et données</b> : tout le code (R) et les tableaux produits sont publics et téléchargeables : <a href="donnees/zones_classement.csv">classement (CSV)</a> · <a href="donnees/series_hebdo_projections.csv">séries et projections (CSV)</a> · <a href="matrice_risque_MVB.pdf">version PDF</a>.</li>
@@ -649,8 +650,8 @@ function MRrows(el, rows, cols) {
 }
 dash.draw('surveiller', (el) => { const z = dash.data('zones'); if (z.status !== 'ok') { el.replaceChildren(); return; }
   const fr = window.MR.fr; const n = (v, f) => (v === '' || v == null) ? '–' : fr.format(f)(+v);
-  const rows = z.data.filter((r) => r.alerte_precoce === 'Oui' && window.MR.inSite(r)).sort((a, b) => a.rang_pression - b.rang_pression);
-  MRrows(el, rows, [[(r) => r.rang_pression, 'num'], [(r) => r.nom, 'nom'], [(r) => r.statut, ''], [(r) => n(r.pression_importation, ',.0f'), 'num'], [null, 'sec'], [(r) => n(r.temps_Bunia_min, ',d'), 'num'], [(r) => n(r.temps_Butembo_min, ',d'), 'num']]);
+  const rows = z.data.filter((r) => (r.alerte_precoce === 'Oui' || (r.rang_mobilite !== '' && r.rang_mobilite != null && +r.rang_mobilite <= 10)) && window.MR.inSite(r)).sort((a, b) => a.rang_pression - b.rang_pression);
+  MRrows(el, rows, [[(r) => r.rang_pression, 'num'], [(r) => r.nom, 'nom'], [(r) => r.statut, ''], [(r) => n(r.pression_importation, ',.0f'), 'num'], [(r) => n(r.rang_mobilite, ',d'), 'num'], [null, 'sec'], [(r) => n(r.temps_Bunia_min, ',d'), 'num'], [(r) => n(r.temps_Butembo_min, ',d'), 'num']]);
 });
 dash.draw('renforcer', (el) => { const z = dash.data('zones'); if (z.status !== 'ok') { el.replaceChildren(); return; }
   const fr = window.MR.fr; const n = (v, f) => (v === '' || v == null) ? '–' : fr.format(f)(+v);
