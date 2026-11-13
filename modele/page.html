@@ -184,6 +184,9 @@
         <tbody data-draw="oracle"></tbody>
       </table>
     </div>
+    <h3 style="font-size:var(--cds-font-size-body);margin:var(--cds-gap-lg) 0 4px">Cas hebdomadaires et projection à 4 semaines, par zone ORACLE</h3>
+    <p class="sub">Trait plein : cas confirmés notifiés par semaine ; pointillés : projection médiane ; bandes : intervalles de prédiction à 80 % et 95 %. Même modèle que pour les sites. Les effectifs par zone sont faibles : les intervalles sont larges et la projection donne un ordre de grandeur, pas une prévision.</p>
+    <div data-draw="oracleProj" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:var(--cds-gap-lg)"></div>
   </section>
 
   <section class="card" id="classement">
@@ -253,7 +256,7 @@ window.MR.inSite = function (z) {
   const s = window.MR.site;
   return s === 'Tous' || z['attraction_' + s] === 'Oui';
 };
-window.MR.drawAll = function () { ['map', 'matrix', 'trend', 'rt', 'table', 'surveiller', 'renforcer', 'oracle', 'changements', 'quotKpi', 'quotCas', 'quotDeces'].forEach((n) => dash.draw(n)); };
+window.MR.drawAll = function () { ['map', 'matrix', 'trend', 'rt', 'table', 'surveiller', 'renforcer', 'oracle', 'changements', 'quotKpi', 'quotCas', 'quotDeces', 'oracleProj'].forEach((n) => dash.draw(n)); };
 window.MR.tip = function (box) {
   let t = box.querySelector(':scope > .tip');
   if (!t) { t = document.createElement('div'); t.className = 'tip'; t.hidden = true; box.appendChild(t); }
@@ -492,6 +495,43 @@ window.MR.quotChart = function (el, key, col, nom) {
 };
 dash.draw('quotCas', (el) => window.MR.quotChart(el, 'cas', dash.colors[0], 'Cas'));
 dash.draw('quotDeces', (el) => window.MR.quotChart(el, 'deces', dash.colors[1], 'Décès'));
+
+// Projections par zone ORACLE (petits multiples)
+dash.draw('oracleProj', (el) => {
+  const s = dash.data('projoracle'); el.textContent = ''; if (s.status !== 'ok' || !s.data.length) { el.textContent = 'Projection non disponible.'; return; }
+  const parse = d3.utcParse('%Y-%m-%d'), f = window.MR.fr.format(',');
+  const all = s.data.map((r) => ({ zone: r.zone, d: parse(r.semaine_fin), type: r.type, y: +r.cas, b80: +r.pi80_bas, h80: +r.pi80_haut, b95: +r.pi95_bas, h95: +r.pi95_haut, tot: +r.total_4sem, tb: +r.total_bas80, th: +r.total_haut80 }));
+  const zones = Array.from(new Set(all.map((r) => r.zone)));
+  const sel = zones.map((z) => { const rows = all.filter((r) => r.zone === z); return { z, obs: rows.filter((r) => r.type === 'Observé').slice(-12), pr: rows.filter((r) => r.type === 'Projection') }; }).filter((g) => g.obs.length && g.pr.length);
+  const ymax = d3.max(sel, (g) => Math.max(d3.max(g.obs, (r) => r.y), d3.max(g.pr, (r) => r.h80))) * 1.08;
+  sel.forEach((g) => { g.box = document.createElement('div'); g.box.style.position = 'relative'; el.appendChild(g.box); });
+  sel.forEach((g) => {
+    const z = g.z, obs = g.obs, pr = g.pr, box = g.box, last = obs[obs.length - 1];
+    const st = window.MR.oracle[z], col = st === 'prep' ? dash.colors[1] : dash.colors[0];
+    const t = document.createElement('div'); t.className = 'sub'; const b = document.createElement('b'); b.textContent = z; t.appendChild(b);
+    t.appendChild(document.createTextNode(` — ${window.MR.oracleLabel[st] || ''} · 4 semaines : ${f(pr[0].tot)} cas (IP80 ${f(pr[0].tb)}–${f(pr[0].th)})`)); box.appendChild(t);
+    const W = box.clientWidth || 260, H = 170, m = { t: 8, r: 8, b: 22, l: 30 };
+    const x = d3.scaleUtc([obs[0].d, pr[pr.length - 1].d], [m.l, W - m.r]), y = d3.scaleLinear([0, Math.max(5, ymax)], [H - m.b, m.t]).nice();
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', `Cas hebdomadaires observés et projetés, zone de santé de ${z}`);
+    svg.append('g').attr('class', 'gridl').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickSize(-(W - m.l - m.r)).tickFormat(''));
+    svg.append('g').attr('class', 'axis').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(4).tickFormat(d3.utcFormat('%d/%m')));
+    svg.append('g').attr('class', 'axis').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4));
+    svg.append('line').attr('x1', x(last.d)).attr('x2', x(last.d)).attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-reference)').style('stroke-dasharray', '3 3');
+    const cl = (v) => Math.min(v, y.domain()[1]);
+    const band = (lo, hi, op) => svg.append('path').datum([{ d: last.d, lo: last.y, hi: last.y }, ...pr.map((r) => ({ d: r.d, lo: r[lo], hi: cl(r[hi]) }))]).attr('d', d3.area().x((p) => x(p.d)).y0((p) => y(p.lo)).y1((p) => y(p.hi))).style('fill', col).style('opacity', op);
+    band('b95', 'h95', 0.10); band('b80', 'h80', 0.18);
+    svg.append('path').datum(obs).attr('d', d3.line().x((p) => x(p.d)).y((p) => y(p.y))).style('fill', 'none').style('stroke', col).style('stroke-width', 2);
+    svg.append('path').datum([last, ...pr]).attr('d', d3.line().x((p) => x(p.d)).y((p) => y(p.y))).style('fill', 'none').style('stroke', col).style('stroke-width', 2).style('stroke-dasharray', '5 4');
+    svg.append('g').selectAll('circle').data(obs).join('circle').attr('cx', (p) => x(p.d)).attr('cy', (p) => y(p.y)).attr('r', 2.2).style('fill', col);
+    const tip = window.MR.tip(box); const pts = [...obs, ...pr];
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).style('fill', 'transparent')
+      .on('pointermove', (ev) => { const [px] = d3.pointer(ev); const p = pts.reduce((a, c) => Math.abs(x(c.d) - px) < Math.abs(x(a.d) - px) ? c : a);
+        tip.replaceChildren(); const h = document.createElement('div'); h.className = 't'; h.textContent = `Semaine au ${d3.utcFormat('%d/%m/%Y')(p.d)}`; tip.appendChild(h);
+        const l = document.createElement('div'); l.textContent = p.type === 'Projection' ? `Projection : ${f(p.y)} cas (IP80 ${f(p.b80)}–${f(p.h80)} ; IP95 ${f(p.b95)}–${f(p.h95)})` : `Observé : ${f(p.y)} cas`; tip.appendChild(l);
+        tip.hidden = false; window.MR.place(box, tip, ev); })
+      .on('pointerleave', () => { tip.hidden = true; });
+  });
+});
 
 // Rt
 dash.draw('rt', (el) => {
