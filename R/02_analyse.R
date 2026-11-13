@@ -152,6 +152,10 @@ calculer <- function(D) {
   ind <- ind |> arrange(desc(produit), desc(probabilite)) |> mutate(rang = row_number())
   for (s in names(SITES)) ind[[paste0("attraction_", s)]] <- !is.na(ind[[paste0("temps_", s, "_min")]]) &
     ind[[paste0("temps_", s, "_min")]] <= CATCH_MIN
+  # une zone à moins de 3 h de deux sites est rattachée au site le plus proche (pas de double compte)
+  tm <- do.call(cbind, lapply(names(SITES), function(s) ind[[paste0("temps_", s, "_min")]]))
+  proche <- names(SITES)[apply(tm, 1, function(x) if (all(is.na(x))) NA_integer_ else which.min(x))]
+  for (s in names(SITES)) ind[[paste0("attraction_", s)]] <- ind[[paste0("attraction_", s)]] & !is.na(proche) & proche == s
   ind
 }
 ind <- calculer(FIN)
@@ -226,7 +230,7 @@ st_write(geo, "sortie/zones_geo_brut.geojson", delete_dsn = TRUE, quiet = TRUE, 
 # ---- Projections à 4 semaines pour chaque zone d'intervention ORACLE (même modèle que pour les sites ;
 # effectifs faibles par zone : intervalles larges, à lire comme un ordre de grandeur)
 zo <- intersect(oracle[[1]], unique(cas_j$nom))
-proj_oracle <- bind_rows(lapply(zo, function(z) { p <- tryCatch(projeter(z), error = function(e) NULL); if (is.null(p)) return(NULL)
+proj_oracle <- bind_rows(lapply(c(if (length(zo) > 1) list(Ensemble = zo), setNames(as.list(zo), zo)), function(zz) { z <- if (length(zz) > 1) "Ensemble" else zz; p <- tryCatch(projeter(zz), error = function(e) NULL); if (is.null(p)) return(NULL)
   bind_rows(p$observe |> transmute(zone = z, semaine_fin = fin, type = "Observé", cas = round(cas)),
             p$projection |> transmute(zone = z, semaine_fin = fin, type = "Projection", cas = mediane, pi80_bas, pi80_haut, pi95_bas, pi95_haut)) |>
     mutate(total_4sem = p$total[["mediane"]], total_bas80 = p$total[["bas80"]], total_haut80 = p$total[["haut80"]]) }))
@@ -240,7 +244,7 @@ cumul_j <- function(d, zz) { d <- d[d$nom %in% zz, ]
   sapply(jours, function(t) { x <- d[d$date <= t, ] |> group_by(nom) |> slice_max(date, n = 1, with_ties = FALSE); sum(x$v) }) }
 mm7 <- function(x) as.numeric(stats::filter(x, rep(1 / 7, 7), sides = 1))
 dates_rapport <- unique(cas$date)
-perim <- c(list(Ensemble = unique(cas$nom)), lapply(res_sites, function(x) x$zones))
+perim <- c(list(Ensemble = unique(cas$nom)), lapply(res_sites, function(x) x$zones), if (length(zo)) list(ORACLE = zo))
 quotidien <- bind_rows(lapply(names(perim), function(p) {
   n_c <- pmax(diff(cumul_j(cas, perim[[p]])), 0); n_d <- pmax(diff(cumul_j(dec, perim[[p]])), 0)
   tibble(perimetre = p, date = jours[-1], cas = n_c, deces = n_d, cas_mm7 = round(mm7(n_c), 2), deces_mm7 = round(mm7(n_d), 2),
