@@ -12,7 +12,7 @@
 #    renforcer (classées par cas récents) ;
 #  - l'impact intègre la sécurité (ACLED + avis des équipes de terrain) ;
 #  - projections à 4 semaines calibrées (marche aléatoire sur le taux de
-#    croissance ; couverture rétrospective IP80 = 80 %, IP95 = 93 %).
+#    croissance ; couverture rétrospective IP80 = 87 %, IP95 = 100 % sur les versions de données de l'époque).
 # =============================================================================
 suppressPackageStartupMessages({
   library(dplyr); library(tidyr); library(readr); library(jsonlite)
@@ -57,6 +57,10 @@ fen <- function(dj, a, b) val_a(dj, b) |> rename(y = cum) |> left_join(val_a(dj,
 num <- function(file, col) read_csv(f(file), show_col_types = FALSE) |> mutate(nom = harm(nom)) |> select(nom, !!col := 2)
 tt <- read_csv(f("osrm__travel_time__static.matrix.csv"), show_col_types = FALSE)
 TT <- as.matrix(tt[, -1]); rownames(TT) <- harm(tt$nom); colnames(TT) <- harm(colnames(TT))
+# Mobilité téléphonique (Flowminder, flux entre zones de santé avant l'épidémie) : facultative
+FM <- if (file.exists(f("flowminder__outflow__static.matrix.csv"))) { fm <- read_csv(f("flowminder__outflow__static.matrix.csv"), show_col_types = FALSE)
+  M <- as.matrix(fm[, -1]); rownames(M) <- harm(fm[[1]]); colnames(M) <- harm(colnames(M)); M[is.na(M)] <- 0; M } else NULL
+POPN <- { p <- num("worldpop__pop_count__static.csv", "pop"); setNames(p$pop, p$nom) }
 
 # --------------------------------------------------- Données de terrain
 terrain <- read_csv("donnees_terrain/securite_terrain.csv", show_col_types = FALSE, col_types = cols(.default = "c")) |>
@@ -110,6 +114,9 @@ calculer <- function(D) {
     if (!z %in% rownames(TT)) return(NA)
     s <- a21 |> filter(nom != z, nom %in% colnames(TT), n > 0)
     sum(s$n * exp(-TT[z, s$nom] / TAU_MIN), na.rm = TRUE) })
+  # Pression de mobilité : cas récents des zones sources rapportés à leur population, pondérés par les flux vers la zone
+  ind$pression_mobilite <- if (is.null(FM)) NA_real_ else sapply(ind$nom, function(z) { if (!z %in% colnames(FM)) return(0)
+    s <- a21 |> filter(nom != z, nom %in% rownames(FM), n > 0); sum(s$n / POPN[s$nom] * FM[s$nom, z], na.rm = TRUE) })
   for (s in names(SITES)) ind[[paste0("temps_", s, "_min")]] <- as.numeric(TT[ind$nom, SITES[[s]]])
   
   # ------------------------------------------------ Scores et matrice (v2)
@@ -137,6 +144,7 @@ calculer <- function(D) {
   # Liste 1 : zones à surveiller (sans cas récent) — alerte = quintile supérieur de pression d'importation
   ind <- ind |> group_by(actif = cas_21j > 0) |>
     mutate(rang_pression = ifelse(!actif, rank(-pression_importation, ties.method = "first"), NA),
+           rang_mobilite = ifelse(!actif & !is.na(pression_mobilite) & pression_mobilite > 0, rank(-pression_mobilite, ties.method = "min"), NA),
            alerte_precoce = !actif & percent_rank(pression_importation) >= 0.8) |> ungroup() |> select(-actif)
   # Liste 2 : zones actives à renforcer — classées par cas récents puis incidence
   ind <- ind |> mutate(rang_actif = ifelse(cas_21j > 0, rank(-(cas_21j + incidence_21j_100k / 1000), ties.method = "first"), NA))
@@ -215,7 +223,7 @@ write_csv(resume, "sortie/resume_sites.csv")
 zones_out <- ind |> transmute(rang, nom, province, niveau_risque, probabilite = round(probabilite, 3), impact = round(impact, 3),
   classe_prob, classe_impact, statut, evolution_7j, niveau_j7, rang_j7, alerte_7j, cas_cumules, deces_cumules, survivants_estimes, cas_21j, cas_21j_prec,
   incidence_21j_100k = round(incidence_21j_100k, 1), tendance = round(tendance, 2), letalite_42j = round(letalite_42j, 2),
-  jours_depuis_dernier_cas, pression_importation = round(pression_importation, 1), rang_pression, alerte_precoce = ifelse(alerte_precoce, "Oui", "Non"),
+  jours_depuis_dernier_cas, pression_importation = round(pression_importation, 1), rang_pression, pression_mobilite = signif(pression_mobilite, 3), rang_mobilite, alerte_precoce = ifelse(alerte_precoce, "Oui", "Non"),
   rang_actif, niveau_securite, acces_terrain, acled_evt_90j, acled_morts_90j, population = round(population),
   fs_10k = round(fs_10k, 2), privation = round(privation, 2),
   oracle_site = coalesce(oracle_site, ""), oracle_statut = coalesce(oracle_statut, ""), oracle_commentaire = coalesce(oracle_commentaire, ""),
