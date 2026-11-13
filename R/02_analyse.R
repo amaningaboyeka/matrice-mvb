@@ -223,6 +223,16 @@ pts <- st_coordinates(st_transform(st_point_on_surface(st_geometry(geo)), 4326))
 geo <- geo |> st_transform(4326) |> mutate(cx = round(pts[, 1], 4), cy = round(pts[, 2], 4)) |> select(nom, cx, cy)
 st_write(geo, "sortie/zones_geo_brut.geojson", delete_dsn = TRUE, quiet = TRUE, layer_options = "COORDINATE_PRECISION=4")
 
+# ---- Projections à 4 semaines pour chaque zone d'intervention ORACLE (même modèle que pour les sites ;
+# effectifs faibles par zone : intervalles larges, à lire comme un ordre de grandeur)
+zo <- intersect(oracle[[1]], unique(cas_j$nom))
+proj_oracle <- bind_rows(lapply(zo, function(z) { p <- tryCatch(projeter(z), error = function(e) NULL); if (is.null(p)) return(NULL)
+  bind_rows(p$observe |> transmute(zone = z, semaine_fin = fin, type = "Observé", cas = round(cas)),
+            p$projection |> transmute(zone = z, semaine_fin = fin, type = "Projection", cas = mediane, pi80_bas, pi80_haut, pi95_bas, pi95_haut)) |>
+    mutate(total_4sem = p$total[["mediane"]], total_bas80 = p$total[["bas80"]], total_haut80 = p$total[["haut80"]]) }))
+if (!nrow(proj_oracle)) proj_oracle <- tibble(zone = character(), semaine_fin = as.Date(character()), type = character(), cas = numeric())
+write_csv(proj_oracle, "sortie/projections_oracle.csv", na = "")
+
 # ---- Notifications quotidiennes (cas et décès confirmés), telles que rapportées : aucune interpolation,
 # dernier cumul rapporté reporté d'un jour à l'autre ; une révision à la baisse donne 0 ce jour-là.
 jours <- seq(FIN - 66, FIN, by = "day")
