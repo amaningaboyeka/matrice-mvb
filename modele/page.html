@@ -75,6 +75,16 @@
     </div>
   </div>
 
+  <section class="card" id="quotidien">
+    <h2>Cas et décès confirmés notifiés par jour</h2>
+    <p class="sub">Nouveaux cas et décès confirmés par date de rapport de situation (et non par date de début des symptômes), 60 derniers jours. Barres : chiffre du jour ; courbe : moyenne mobile sur 7 jours, à lire en priorité car les chiffres quotidiens dépendent du rythme de notification (rattrapages, jours sans rapport). Les décès d’un jour concernent des cas notifiés plusieurs semaines plus tôt : ne pas en déduire une létalité quotidienne.</p>
+    <div class="kpis" data-draw="quotKpi"></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:var(--cds-gap-lg);margin-top:var(--cds-gap-md)">
+      <div><div class="sub"><b>Cas confirmés</b></div><div class="chart" data-draw="quotCas"></div></div>
+      <div><div class="sub"><b>Décès confirmés</b></div><div class="chart" data-draw="quotDeces"></div></div>
+    </div>
+  </section>
+
   <section class="card" id="changements">
     <h2>Ce qui a changé en 7 jours</h2>
     <p class="sub">Comparaison avec la matrice recalculée sur les données d’il y a 7 jours.</p>
@@ -243,7 +253,7 @@ window.MR.inSite = function (z) {
   const s = window.MR.site;
   return s === 'Tous' || z['attraction_' + s] === 'Oui';
 };
-window.MR.drawAll = function () { ['map', 'matrix', 'trend', 'rt', 'table', 'surveiller', 'renforcer', 'oracle', 'changements'].forEach((n) => dash.draw(n)); };
+window.MR.drawAll = function () { ['map', 'matrix', 'trend', 'rt', 'table', 'surveiller', 'renforcer', 'oracle', 'changements', 'quotKpi', 'quotCas', 'quotDeces'].forEach((n) => dash.draw(n)); };
 window.MR.tip = function (box) {
   let t = box.querySelector(':scope > .tip');
   if (!t) { t = document.createElement('div'); t.className = 'tip'; t.hidden = true; box.appendChild(t); }
@@ -437,6 +447,51 @@ dash.draw('trend', (el) => {
     })
     .on('pointerleave', () => { tip.hidden = true; });
 });
+
+// Notifications quotidiennes (cas et décès)
+window.MR.quot = function () {
+  const s = dash.data('quotidien'); if (s.status !== 'ok') return null;
+  const parse = d3.utcParse('%Y-%m-%d'); const p = window.MR.site === 'Tous' ? 'Ensemble' : window.MR.site;
+  return { p, rows: s.data.filter((r) => r.perimetre === p).map((r) => ({ d: parse(r.date), cas: +r.cas, deces: +r.deces, cas_mm7: +r.cas_mm7, deces_mm7: +r.deces_mm7, rapport: r.rapport === 'Oui' })) };
+};
+dash.draw('quotKpi', (el) => {
+  const q = window.MR.quot(); el.textContent = ''; if (!q || !q.rows.length) { el.textContent = '—'; return; }
+  const r = q.rows, n = r.length, f = window.MR.fr.format(','), sum = (a, k) => d3.sum(a, (x) => x[k]);
+  const last = r[n - 1], w1 = r.slice(n - 7), w0 = r.slice(n - 14, n - 7);
+  const evo = (k) => { const a = sum(w1, k), b = sum(w0, k); return b > 0 ? `${a >= b ? '+' : '−'}${window.MR.fr.format(',.0f')(Math.abs(100 * (a - b) / b))} % par rapport aux 7 jours précédents (${f(b)})` : `7 jours précédents : ${f(b)}`; };
+  const lib = q.p === 'Ensemble' ? 'toutes les zones rapportées' : `zone d’attraction de ${q.p}`;
+  [[f(last.cas), `cas notifiés au dernier rapport (${d3.utcFormat('%d/%m')(last.d)})`, lib],
+   [f(last.deces), `décès notifiés au dernier rapport (${d3.utcFormat('%d/%m')(last.d)})`, lib],
+   [f(sum(w1, 'cas')), 'cas notifiés, 7 derniers jours', evo('cas')],
+   [f(sum(w1, 'deces')), 'décès notifiés, 7 derniers jours', evo('deces')]].forEach(([v, l, s2]) => {
+    const k = document.createElement('div'); k.className = 'kpi';
+    [['v', v], ['l', l], ['s', s2]].forEach(([c, t]) => { const e = document.createElement('div'); e.className = c; e.textContent = t; k.appendChild(e); });
+    el.appendChild(k);
+  });
+});
+window.MR.quotChart = function (el, key, col, nom) {
+  const q = window.MR.quot(); el.textContent = ''; if (!q || !q.rows.length) { el.textContent = '—'; return; }
+  const rows = q.rows, W = el.clientWidth || 400, H = 220, m = { t: 10, r: 10, b: 26, l: 40 };
+  const x = d3.scaleBand(rows.map((r) => +r.d), [m.l, W - m.r]).padding(0.15);
+  const y = d3.scaleLinear([0, Math.max(1, d3.max(rows, (r) => r[key])) * 1.05], [H - m.b, m.t]).nice();
+  const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', `${nom} notifiés par jour, 60 derniers jours`);
+  svg.append('g').attr('class', 'gridl').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickSize(-(W - m.l - m.r)).tickFormat(''));
+  const step = Math.max(1, Math.ceil(rows.length / Math.max(2, Math.floor(W / 80))));
+  svg.append('g').attr('class', 'axis').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickValues(rows.filter((r, i) => (rows.length - 1 - i) % step === 0).map((r) => +r.d)).tickFormat((v) => d3.utcFormat('%d/%m')(new Date(v))));
+  svg.append('g').attr('class', 'axis').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickFormat(window.MR.fr.format(',')));
+  svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', (r) => x(+r.d)).attr('width', x.bandwidth()).attr('y', (r) => y(r[key])).attr('height', (r) => y(0) - y(r[key])).style('fill', col).style('opacity', 0.45);
+  svg.append('path').datum(rows.filter((r) => !Number.isNaN(r[key + '_mm7']))).attr('d', d3.line().x((r) => x(+r.d) + x.bandwidth() / 2).y((r) => y(r[key + '_mm7']))).style('fill', 'none').style('stroke', col).style('stroke-width', 2.2);
+  const tip = window.MR.tip(el);
+  svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).style('fill', 'transparent')
+    .on('pointermove', (ev) => {
+      const [px] = d3.pointer(ev); const b = rows.reduce((a, c) => Math.abs(x(+c.d) + x.bandwidth() / 2 - px) < Math.abs(x(+a.d) + x.bandwidth() / 2 - px) ? c : a);
+      tip.replaceChildren(); const t = document.createElement('div'); t.className = 't'; t.textContent = d3.utcFormat('%d/%m/%Y')(b.d); tip.appendChild(t);
+      [`${nom} du jour : ${window.MR.fr.format(',')(b[key])}`, `Moyenne 7 jours : ${window.MR.fr.format(',.1f')(b[key + '_mm7'])}`, b.rapport ? '' : 'Pas de rapport daté de ce jour'].filter(Boolean).forEach((txt) => { const p = document.createElement('div'); p.textContent = txt; tip.appendChild(p); });
+      tip.hidden = false; window.MR.place(el, tip, ev);
+    }).on('pointerleave', () => { tip.hidden = true; });
+};
+dash.draw('quotCas', (el) => window.MR.quotChart(el, 'cas', dash.colors[0], 'Cas'));
+dash.draw('quotDeces', (el) => window.MR.quotChart(el, 'deces', dash.colors[1], 'Décès'));
 
 // Rt
 dash.draw('rt', (el) => {
