@@ -60,7 +60,9 @@ jobs:
         run: Rscript R/02_analyse.R
 
       - name: Construire la page et le PDF
-        run: python outils/construire_page.py
+        run: |
+          python outils/construire_page.py
+          VARIANTE=oracle python outils/construire_page.py
 
       - name: Archiver le classement du jour
         run: |
