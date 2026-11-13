@@ -4,8 +4,8 @@ Classement automatisé des 70 zones de santé de l'Ituri et du Nord-Kivu selon l
 maladie à virus Bundibugyo, avec dynamique, projections à 4 semaines et alerte précoce autour
 des sites ORACLE de Bunia et de Butembo.
 
-**Auteur** : Dr Gaylord Amani Ngaboyeka, MD, MPH, PhD — co-investigateur et responsable de la
-qualité des données, projet ORACLE BDBV ; École Régionale de Santé Publique, Université
+**Auteur** : Dr Gaylord Amani Ngaboyeka, MD, MPH, PhD — co-investigateur et biostatisticien de
+l'essai clinique ORACLE BDBV ; École Régionale de Santé Publique, Université
 Catholique de Bukavu (ERSP/UCB). Contact : amani.ngaboyeka@ucbukavu.ac.cd
 
 La page est **recalculée chaque jour à 7 h (heure de Bukavu)** et publiée à une adresse publique
