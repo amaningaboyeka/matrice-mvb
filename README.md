@@ -63,9 +63,8 @@ Pour modifier : ouvrir le fichier sur GitHub, cliquer sur le crayon, changer la 
 - **Impact** : densité de population, accès aux formations sanitaires, privation
   socio-économique, létalité récente et insécurité (ACLED + avis du terrain).
 - **Zones à surveiller** : zones sans cas depuis 21 jours, alerte si la pression
-  d'importation est dans le quintile supérieur. Évaluation juin–octobre 2026 : AUC 0,74 (route, Ituri et Nord-Kivu) ; 0,84 pour la mobilité téléphonique dans les huit provinces.
-- **Zones actives à renforcer** : classées par cas récents (Spearman 0,89 avec les cas des
-  21 jours suivants).
+  d'importation est dans le quintile supérieur. Évaluation rétrospective juin–octobre 2026 : résultats soumis pour publication (Pan African Medical Journal, novembre 2026).
+- **Zones actives à renforcer** : classées par cas récents.
 - **Projections à 4 semaines** : quasi-Poisson avec marche aléatoire sur le taux de
   croissance ; couverture rétrospective de 80 % pour l'intervalle à 80 %.
 
