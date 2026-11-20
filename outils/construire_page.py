@@ -60,6 +60,15 @@ else:
     corps = oter(corps, '      <div class="legend"><span><i class="or-a"></i>', NL)
     corps = corps.replace('<a href="#zones-oracle">Zones ORACLE</a>', "").replace(" Contour plein : zone ORACLE en cours ; pointillés : en préparation.", "")
 
+# Mentions communes aux deux variantes : données préliminaires, façon de citer, revue non nommée
+CITER_FR = "Données préliminaires tirées des rapports de situation de l’INSP (transcription INRB-UMIE) ; elles peuvent être révisées. Comment citer : Amani Ngaboyeka G. Matrice de risque et classement des zones de santé, maladie à virus Bundibugyo, Ituri et Nord-Kivu. École Régionale de Santé Publique, Université Catholique de Bukavu ; outil développé dans le cadre du projet ORACLE BDBV ; 2026. Version 2.1. DOI : à compléter après dépôt."
+CITER_EN = "Preliminary data from INSP situation reports (transcribed by INRB-UMIE); they may be revised. How to cite: Amani Ngaboyeka G. Risk matrix and ranking of health zones, Bundibugyo virus disease, Ituri and Nord-Kivu. Regional School of Public Health, Catholic University of Bukavu; tool developed within the ORACLE BDBV project; 2026. Version 2.1. DOI: to be added after deposit."
+_fin = "ORACLE BDBV ; ERSP/UCB</p>"
+_i = corps.find(_fin)
+if _i >= 0: corps = corps[:_i + len(_fin)] + NL + '    <p class="sub">' + CITER_FR + "</p>" + corps[_i + len(_fin):]
+corps = corps.replace("var D = {", "var D = {" + json.dumps(CITER_FR, ensure_ascii=False) + ":" + json.dumps(CITER_EN, ensure_ascii=False) + ",", 1)
+corps = corps.replace(" (Pan African Medical Journal, novembre 2026)", "").replace(" (Pan African Medical Journal, November 2026)", "")
+
 THEME = """:root{--font-anthropic-sans:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;--font-anthropic-serif:Georgia,"Times New Roman",serif;
 --color-fg:#1f2328;--color-fg-muted:#5c6470;--color-bg:#fff;--color-panel:#f7f7f5;--color-border-line:#e1e3e6;--color-ok:#2e7d32;--color-warn:#e8a33d;--color-bad:#c0392b;
 --cds-font-size-caption:12.5px;--cds-font-size-body:15px;--cds-font-size-heading:17px;--cds-font-size-title:26px;--cds-font-weight-medium:600;
