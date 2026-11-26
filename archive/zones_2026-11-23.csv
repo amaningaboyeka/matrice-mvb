@@ -1,0 +1,71 @@
+rang,nom,province,niveau_risque,probabilite,impact,classe_prob,classe_impact,statut,evolution_7j,niveau_j7,rang_j7,alerte_7j,cas_cumules,deces_cumules,survivants_estimes,cas_21j,cas_21j_prec,incidence_21j_100k,tendance,letalite_42j,jours_depuis_dernier_cas,pression_importation,rang_pression,pression_mobilite,rang_mobilite,alerte_precoce,rang_actif,niveau_securite,acces_terrain,acled_evt_90j,acled_morts_90j,population,fs_10k,privation,oracle_site,oracle_statut,oracle_commentaire,temps_Bunia_min,temps_Butembo_min,attraction_Bunia,attraction_Butembo
+1,Masereka,Nord-Kivu,Très élevé,0.825,0.675,Élevée,Élevé,Active,En hausse,Modéré,13,,65,22,43,21,7,7,2.75,0.36,0,268.8,,0.345,,Non,14,Non renseigné,Non renseigné,,,298636,0.74,0.81,,,,286,63,Non,Oui
+2,Rwampara,Ituri,Très élevé,0.822,0.697,Élevée,Élevé,Active,Stable,Très élevé,1,,1253,473,780,48,71,19,0.68,0.66,0,278.1,,1.92,,Non,9,Non renseigné,Non renseigné,,,252324,2.06,0.83,Bunia,Intervention en cours,,47,253,Oui,Non
+3,Katwa,Nord-Kivu,Très élevé,0.808,0.669,Élevée,Élevé,Active,En hausse,Élevé,10,,714,448,266,34,50,5.6,0.69,0.77,0,359,,1.99,,Non,10,Non renseigné,Non renseigné,,,612242,3.63,0.81,Butembo,En préparation,3 CTE ciblés,242,19,Non,Oui
+4,Beni,Nord-Kivu,Élevé,0.895,0.552,Élevée,Moyen,Active,Stable,Élevé,2,,1009,650,359,280,258,65.3,1.08,0.62,0,245.2,,0.93,,Non,1,Non renseigné,Non renseigné,,,428854,5.32,0.81,,,,190,72,Non,Oui
+5,Oicha,Nord-Kivu,Élevé,0.881,0.518,Élevée,Moyen,Active,Stable,Élevé,3,,165,73,92,68,52,24.7,1.3,0.44,0,279.3,,0.651,,Non,6,Non renseigné,Non renseigné,,,274998,1.96,0.82,,,,206,140,Non,Oui
+6,Nizi,Ituri,Élevé,0.877,0.54,Élevée,Moyen,Active,Stable,Élevé,4,,903,339,564,48,39,37,1.23,0.55,0,298.4,,0.679,,Non,8,Non renseigné,Non renseigné,,,129697,4.55,0.81,,,,27,269,Oui,Non
+7,Mangala,Ituri,Élevé,0.862,0.361,Élevée,Moyen,Active,Stable,Élevé,5,,468,180,288,68,30,75.8,2.23,0.19,3,171.9,,0,,Non,5,Non renseigné,Non renseigné,,,89713,2.9,0.83,,,,102,344,Oui,Non
+8,Bunia,Ituri,Élevé,0.85,0.621,Élevée,Moyen,Active,Stable,Élevé,7,,2165,787,1378,150,168,29.5,0.89,0.55,0,242,,1.73,,Non,3,Non renseigné,Non renseigné,,,509060,3.14,0.82,,,,0,245,Oui,Non
+9,Kalunguta,Nord-Kivu,Élevé,0.847,0.418,Élevée,Moyen,Active,Stable,Élevé,6,,129,65,64,28,29,14.6,0.97,0.67,2,433.6,,0.42,,Non,12,Non renseigné,Non renseigné,,,191732,5.48,0.81,,,,209,43,Non,Oui
+10,Lita,Ituri,Élevé,0.81,0.482,Élevée,Moyen,Active,Stable,Élevé,8,,360,177,183,28,28,24.7,1,0.39,0,267.9,,0.464,,Non,11,Non renseigné,Non renseigné,,,113364,2.38,0.81,Bunia,Intervention en cours,,48,277,Oui,Non
+11,Mambasa,Ituri,Élevé,0.759,0.388,Élevée,Moyen,Active,Stable,Élevé,9,,177,98,79,66,66,43.8,1,0.61,0,98.6,,0.592,,Non,7,Non renseigné,Non renseigné,,,150807,5.04,0.87,,,,309,282,Non,Non
+12,Butembo,Nord-Kivu,Élevé,0.757,0.555,Élevée,Moyen,Active,Stable,Élevé,11,,365,219,146,20,48,6.9,0.43,0.5,0,363.8,,0.878,,Non,16,Non renseigné,Non renseigné,,,289378,4.22,0.81,Butembo,En préparation,3 CTE ciblés,245,0,Non,Oui
+13,Mongbwalu,Ituri,Élevé,0.689,0.452,Élevée,Moyen,Active,Stable,Élevé,12,,744,368,376,20,12,12.7,1.62,0.81,0,77.1,,0.873,,Non,15,Non renseigné,Non renseigné,,,157714,5.71,0.86,,,,232,442,Non,Non
+14,Vuhovi,Nord-Kivu,Modéré,0.761,0.504,Moyenne,Moyen,Active,Stable,Modéré,14,,68,24,44,11,18,7.2,0.63,0.38,6,351.8,,0,,Non,19,Non renseigné,Non renseigné,,,151953,2.9,0.81,,,,253,37,Non,Oui
+15,Kyondo,Nord-Kivu,Modéré,0.753,0.47,Moyenne,Moyen,Active,Stable,Modéré,19,,58,26,32,12,8,4.4,1.44,0.3,0,268.2,,0.369,,Non,18,Non renseigné,Non renseigné,,,270344,1.74,0.8,,,,292,82,Non,Oui
+16,Nyankunde,Ituri,Modéré,0.751,0.441,Moyenne,Moyen,Active,Stable,Modéré,15,,146,47,99,6,6,6.4,1,0.62,0,328.3,,0.188,,Non,20,Non renseigné,Non renseigné,,,94004,5.21,0.86,,,,59,210,Oui,Non
+17,Musienene,Nord-Kivu,Modéré,0.735,0.657,Moyenne,Moyen,Active,Stable,Modéré,16,,181,92,89,19,15,5.5,1.25,0.68,0,234.4,,0.559,,Non,17,Non renseigné,Non renseigné,,,348392,2.18,0.82,,,,305,65,Non,Oui
+18,Fataki,Ituri,Modéré,0.7,0.633,Moyenne,Moyen,Active,Stable,Modéré,18,,89,31,58,5,0,3.2,6,,5,208.7,,0.107,,Non,24,Non renseigné,Non renseigné,,,158032,2.28,0.83,,,,96,338,Oui,Non
+19,Drodro,Ituri,Modéré,0.686,0.542,Moyenne,Moyen,Active,Stable,Modéré,23,,17,9,8,2,0,1,3,,5,266.6,,0.3,,Non,28,Non renseigné,Non renseigné,,,199996,3,0.82,,,,61,303,Oui,Non
+20,Biena,Nord-Kivu,Modéré,0.666,0.375,Moyenne,Moyen,Active,Stable,Modéré,17,,31,12,19,5,3,3.7,1.5,,6,183.7,,0.0144,,Non,23,Non renseigné,Non renseigné,,,136159,5.88,0.84,,,,340,120,Non,Oui
+21,Komanda,Ituri,Modéré,0.656,0.467,Moyenne,Moyen,Active,Stable,Modéré,21,,196,124,72,3,11,1.4,0.33,1.07,5,369.9,,0.586,,Non,27,Non renseigné,Non renseigné,,,219948,6.59,0.86,,,,129,134,Oui,Non
+22,Lubero,Nord-Kivu,Modéré,0.622,0.512,Moyenne,Moyen,Active,Stable,Modéré,24,,49,19,30,6,15,1.6,0.44,0.29,0,202.9,,0.158,,Non,21,Non renseigné,Non renseigné,,,377506,0.98,0.83,,,,323,99,Non,Oui
+23,Rimba,Ituri,Modéré,0.577,0.538,Moyenne,Moyen,Active,Stable,Modéré,20,,29,7,22,4,8,1.8,0.56,0.18,17,136.4,,0.0429,,Non,26,Non renseigné,Non renseigné,,,222282,2.34,0.83,,,,159,401,Oui,Non
+24,Kambala,Ituri,Modéré,0.567,0.48,Moyenne,Moyen,Active,Stable,Modéré,25,,3,1,2,1,0,0.7,2,,11,111.2,,0.0216,,Non,30,Non renseigné,Non renseigné,,,140956,2.91,0.85,,,,188,429,Non,Non
+25,Kibirizi,Nord-Kivu,Modéré,0.556,0.513,Moyenne,Moyen,Active,En hausse,Faible,48,,1,1,0,1,0,0.5,2,,1,108,,0,,Non,31,Non renseigné,Non renseigné,,,185416,1.35,0.82,,,,400,177,Non,Oui
+26,Mahagi,Ituri,Modéré,0.514,0.55,Moyenne,Moyen,Active,Stable,Modéré,27,,6,1,5,1,1,0.4,1,,19,101.5,,0.0873,,Non,32,Non renseigné,Non renseigné,,,247893,2.94,0.78,,,,198,440,Non,Non
+27,Nia Nia,Ituri,Modéré,0.498,0.428,Moyenne,Moyen,Active,Stable,Modéré,26,,348,209,139,5,16,5.4,0.35,1.24,3,44.2,,0.315,,Non,22,Non renseigné,Non renseigné,,,91756,10.57,0.86,,,,438,411,Non,Non
+28,Ariwara,Ituri,Modéré,0.462,0.593,Moyenne,Moyen,Active,En hausse,Faible,64,,9,2,7,1,0,0.3,2,,0,30.1,,0.0461,,Non,33,Non renseigné,Non renseigné,,,314730,2.45,0.82,,,,355,597,Non,Non
+29,Aru,Ituri,Modéré,0.435,0.496,Moyenne,Moyen,Active,Stable,Modéré,29,,27,7,20,2,16,0.6,0.18,0.06,6,44.8,,0.0571,,Non,29,Non renseigné,Non renseigné,,,329667,1.43,0.82,,,,304,545,Non,Non
+30,Bambu,Ituri,Modéré,0.221,0.51,Moyenne,Moyen,"Touchée, sans cas récent",Stable,Modéré,22,Nouvelle alerte,220,50,170,0,6,0,0.14,,26,280.4,1,0.968,1,Oui,,Non renseigné,Non renseigné,,,136151,3.75,0.83,,,,54,296,Oui,Non
+31,Gety,Ituri,Modéré,0.188,0.391,Moyenne,Moyen,"Touchée, sans cas récent",Stable,Modéré,30,,11,7,4,0,0,0,,,43,244.1,2,0.133,4,Oui,,Non renseigné,Non renseigné,,,143442,4.81,0.85,,,,84,255,Oui,Non
+32,Boga,Ituri,Modéré,0.17,0.354,Moyenne,Moyen,"Touchée, sans cas récent",Stable,Modéré,31,,2,2,0,0,0,0,,,91,215.9,4,0.0426,13,Oui,,Non renseigné,Non renseigné,,,72028,4.3,0.83,,,,186,201,Non,Non
+33,Kamango,Nord-Kivu,Modéré,0.159,0.469,Moyenne,Moyen,Jamais touchée,Stable,Modéré,32,,0,0,0,0,0,0,,,,190.7,5,0.0741,8,Oui,,Non renseigné,Non renseigné,,,111428,1.08,0.79,,,,281,192,Non,Non
+34,Rethy,Ituri,Modéré,0.152,0.533,Moyenne,Moyen,Jamais touchée,Stable,Modéré,33,,0,0,0,0,0,0,,,,177.7,6,0.0359,15,Oui,,Non renseigné,Non renseigné,,,215654,2.92,0.82,,,,128,370,Oui,Non
+35,Jiba,Ituri,Modéré,0.141,0.41,Moyenne,Moyen,Jamais touchée,Stable,Modéré,34,,0,0,0,0,0,0,,,,161.4,8,0,,Oui,,Non renseigné,Non renseigné,,,75957,6.45,0.83,,,,126,368,Oui,Non
+36,Mutwanga,Nord-Kivu,Modéré,0.865,0.324,Élevée,Faible,Active,Stable,Modéré,36,,145,46,99,74,48,29,1.53,0.34,0,226.2,,0.272,,Non,4,Non renseigné,Non renseigné,,,255278,3.76,0.81,,,,279,154,Non,Oui
+37,Mabalako,Nord-Kivu,Modéré,0.805,0.309,Élevée,Faible,Active,Stable,Modéré,37,,144,50,94,26,54,13.2,0.49,0.35,0,372.1,,0.416,,Non,13,Non renseigné,Non renseigné,,,197136,5.48,0.81,,,,228,82,Non,Oui
+38,Mandima,Ituri,Modéré,0.715,0.308,Élevée,Faible,Active,Stable,Modéré,39,,696,339,357,195,232,68,0.84,0.47,0,38.8,,0.914,,Non,2,Non renseigné,Non renseigné,,,286637,4.88,0.83,,,,517,296,Non,Non
+39,Kirotshe,Nord-Kivu,Modéré,0.058,0.677,Faible,Élevé,Jamais touchée,Stable,Modéré,40,,0,0,0,0,0,0,,,,54.2,25,0,,Non,,Non renseigné,Non renseigné,,,541955,0.55,0.79,,,,486,262,Non,Non
+40,Masisi,Nord-Kivu,Modéré,0.022,0.677,Faible,Élevé,Jamais touchée,Stable,Modéré,41,,0,0,0,0,0,0,,,,29.2,31,0,,Non,,Non renseigné,Non renseigné,,,356754,0.87,0.84,,,,560,336,Non,Non
+41,Katoyi,Nord-Kivu,Modéré,0.018,0.678,Faible,Élevé,Jamais touchée,Stable,Modéré,42,,0,0,0,0,0,0,,,,25,32,0,,Non,,Non renseigné,Non renseigné,,,253835,0.87,0.85,,,,578,355,Non,Non
+42,Kilo,Ituri,Faible,0.735,0.318,Moyenne,Faible,Active,En baisse,Modéré,38,,44,16,28,4,2,9.3,1.67,,7,252.8,,0,,Non,25,Non renseigné,Non renseigné,,,43139,8.58,0.83,,,,74,284,Oui,Non
+43,Tchomia,Ituri,Faible,0.174,0.297,Moyenne,Faible,"Touchée, sans cas récent",Stable,Faible,44,Nouvelle alerte,86,27,59,0,10,0,0.09,0.2,25,220.7,3,0.341,2,Oui,,Non renseigné,Non renseigné,,,83917,4.29,0.81,,,,83,303,Oui,Non
+44,Manguredjipa,Nord-Kivu,Faible,0.145,0.316,Moyenne,Faible,"Touchée, sans cas récent",Stable,Faible,45,,16,5,11,0,1,0,0.5,,36,170.2,7,0.00792,22,Oui,,Non renseigné,Non renseigné,,,68014,8.38,0.87,,,,380,159,Non,Oui
+45,Kayna,Nord-Kivu,Faible,0.134,0.602,Faible,Moyen,"Touchée, sans cas récent",En baisse,Modéré,35,Alerte levée,3,2,1,0,0,0,,,52,147.5,10,0.0598,10,Non,,Non renseigné,Non renseigné,,,322628,2.76,0.84,,,,364,140,Non,Oui
+46,Damas,Ituri,Faible,0.13,0.394,Faible,Moyen,"Touchée, sans cas récent",Stable,Faible,46,,41,10,31,0,1,0,0.5,,36,140,11,0.156,3,Non,,Non renseigné,Non renseigné,,,94820,4.64,0.86,,,,154,396,Oui,Non
+47,Linga,Ituri,Faible,0.123,0.472,Faible,Moyen,Jamais touchée,Stable,Faible,47,,0,0,0,0,0,0,,,,130.9,12,0,,Non,,Non renseigné,Non renseigné,,,108266,4.53,0.83,,,,157,399,Oui,Non
+48,Logo,Ituri,Faible,0.109,0.534,Faible,Moyen,"Touchée, sans cas récent",Stable,Faible,49,,14,11,3,0,0,0,,,49,101.3,13,0.118,5,Non,,Non renseigné,Non renseigné,,,216944,3,0.79,,,,199,440,Non,Non
+49,Rutshuru,Nord-Kivu,Faible,0.101,0.627,Faible,Moyen,Jamais touchée,Stable,Faible,50,,0,0,0,0,0,0,,,,90.7,14,0,,Non,,Non renseigné,Non renseigné,,,343487,0.64,0.74,,,,424,200,Non,Non
+50,Bambo,Nord-Kivu,Faible,0.098,0.473,Faible,Moyen,Jamais touchée,Stable,Faible,51,,0,0,0,0,0,0,,,,79.3,15,0.0107,21,Non,,Non renseigné,Non renseigné,,,134970,1.11,0.77,,,,438,215,Non,Non
+51,Alimbongo,Nord-Kivu,Faible,0.094,0.493,Faible,Moyen,"Touchée, sans cas récent",En baisse,Modéré,28,,6,4,2,0,1,0,0.5,,24,77.6,16,0.0181,20,Non,,Non renseigné,Non renseigné,,,296821,2.06,0.84,,,,440,217,Non,Non
+52,Nyarambe,Ituri,Faible,0.087,0.485,Faible,Moyen,Jamais touchée,Stable,Faible,52,,0,0,0,0,0,0,,,,74.2,17,0.0467,11,Non,,Non renseigné,Non renseigné,,,273931,3.8,0.74,,,,237,478,Non,Non
+53,Rwanguba,Nord-Kivu,Faible,0.083,0.525,Faible,Moyen,Jamais touchée,Stable,Faible,53,,0,0,0,0,0,0,,,,74.2,18,0,,Non,,Non renseigné,Non renseigné,,,320999,2.4,0.72,,,,448,224,Non,Non
+54,Aungba,Ituri,Faible,0.08,0.519,Faible,Moyen,"Touchée, sans cas récent",Stable,Faible,54,,12,5,7,0,0,0,,,95,70.7,19,0.0302,17,Non,,Non renseigné,Non renseigné,,,216787,2.68,0.84,,,,248,490,Non,Non
+55,Binza,Nord-Kivu,Faible,0.076,0.441,Faible,Moyen,Jamais touchée,Stable,Faible,55,,0,0,0,0,0,0,,,,66.8,20,0,,Non,,Non renseigné,Non renseigné,,,191406,1.46,0.75,,,,468,244,Non,Non
+56,Nyiragongo,Nord-Kivu,Faible,0.072,0.611,Faible,Moyen,Jamais touchée,Stable,Faible,56,,0,0,0,0,0,0,,,,65.1,21,0.043,12,Non,,Non renseigné,Non renseigné,,,248139,1.21,0.69,,,,463,240,Non,Non
+57,Goma,Nord-Kivu,Faible,0.069,0.657,Faible,Moyen,"Touchée, sans cas récent",Stable,Faible,57,,1,0,1,0,0,0,,,144,63.2,22,0.0995,6,Non,,Non renseigné,Non renseigné,,,282838,1.13,0.69,,,,467,243,Non,Non
+58,Karisimbi,Nord-Kivu,Faible,0.065,0.534,Faible,Moyen,Jamais touchée,Stable,Faible,58,,0,0,0,0,0,0,,,,62.6,23,0.0679,9,Non,,Non renseigné,Non renseigné,,,403401,3.4,0.69,,,,468,245,Non,Non
+59,Angumu,Ituri,Faible,0.062,0.401,Faible,Moyen,Jamais touchée,Stable,Faible,59,,0,0,0,0,0,0,,,,60.6,24,0.0204,19,Non,,Non renseigné,Non renseigné,,,103693,5.88,0.76,,,,260,502,Non,Non
+60,Birambizo,Nord-Kivu,Faible,0.054,0.525,Faible,Moyen,Jamais touchée,Stable,Faible,60,,0,0,0,0,0,0,,,,51,26,0,,Non,,Non renseigné,Non renseigné,,,127939,1.17,0.79,,,,493,269,Non,Non
+61,Mweso,Nord-Kivu,Faible,0.051,0.631,Faible,Moyen,Jamais touchée,Stable,Faible,61,,0,0,0,0,0,0,,,,48.9,27,0,,Non,,Non renseigné,Non renseigné,,,289637,0.86,0.82,,,,496,273,Non,Non
+62,Biringi,Ituri,Faible,0.04,0.455,Faible,Moyen,Jamais touchée,Stable,Faible,62,,0,0,0,0,0,0,,,,39.5,28,0.0303,16,Non,,Non renseigné,Non renseigné,,,182556,3.62,0.86,,,,317,559,Non,Non
+63,Pinga,Nord-Kivu,Faible,0.036,0.502,Faible,Moyen,Jamais touchée,Stable,Faible,63,,0,0,0,0,0,0,,,,39.1,29,0.0287,18,Non,,Non renseigné,Non renseigné,,,101157,1.98,0.87,,,,523,300,Non,Non
+64,Adja,Ituri,Faible,0.025,0.469,Faible,Moyen,"Touchée, sans cas récent",Stable,Faible,65,,11,1,10,0,0,0,,,48,29.6,30,8.21e-4,25,Non,,Non renseigné,Non renseigné,,,126933,3.94,0.84,,,,365,606,Non,Non
+65,Kibua,Nord-Kivu,Faible,0.014,0.486,Faible,Moyen,Jamais touchée,Stable,Faible,66,,0,0,0,0,0,0,,,,22.8,33,0,,Non,,Non renseigné,Non renseigné,,,63615,2.67,0.88,,,,590,366,Non,Non
+66,Adi,Ituri,Faible,0.011,0.639,Faible,Moyen,Jamais touchée,Stable,Faible,67,,0,0,0,0,0,0,,,,22,34,0.00456,24,Non,,Non renseigné,Non renseigné,,,285383,2.35,0.88,,,,397,638,Non,Non
+67,Laybo,Ituri,Faible,0.007,0.487,Faible,Moyen,Jamais touchée,Stable,Faible,68,,0,0,0,0,0,0,,,,21.4,35,0.00593,23,Non,,Non renseigné,Non renseigné,,,193238,3.21,0.86,,,,410,651,Non,Non
+68,Itebero,Nord-Kivu,Faible,0.004,0.497,Faible,Moyen,Jamais touchée,Stable,Faible,69,,0,0,0,0,0,0,,,,6.8,36,0,,Non,,Non renseigné,Non renseigné,,,96851,2.27,0.87,,,,737,513,Non,Non
+69,Walikale,Nord-Kivu,Faible,0,0.526,Faible,Moyen,Jamais touchée,Stable,Faible,70,,0,0,0,0,0,0,,,,6.6,37,0.0381,14,Non,,Non renseigné,Non renseigné,,,176259,1.02,0.85,,,,743,520,Non,Non
+70,Lolwa,Ituri,Faible,0.138,0.312,Faible,Faible,"Touchée, sans cas récent",Stable,Faible,43,,37,11,26,0,1,0,0.5,,24,158.4,9,0.0896,7,Non,,Non renseigné,Non renseigné,,,41314,15.73,0.88,,,,193,270,Non,Non
